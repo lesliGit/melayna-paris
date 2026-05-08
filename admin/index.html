@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard – Admin Melayna Paris</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="admin-sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-name">Melayna</div>
+    <span class="logo-sub">Paris</span>
+    <div class="sidebar-badge">Admin</div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Principal</div>
+    <a href="index.html" class="sidebar-link active">
+      <i class="fas fa-chart-line"></i> Dashboard
+    </a>
+    <a href="commandes.html" class="sidebar-link">
+      <i class="fas fa-shopping-bag"></i> Commandes
+      <span class="sidebar-notif" id="notif-orders">3</span>
+    </a>
+    <a href="produits.html" class="sidebar-link">
+      <i class="fas fa-tshirt"></i> Produits
+    </a>
+    <a href="chiffre-affaire.html" class="sidebar-link">
+      <i class="fas fa-euro-sign"></i> Chiffre d'Affaires
+    </a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Boutique</div>
+    <a href="../index.html" class="sidebar-link" target="_blank">
+      <i class="fas fa-external-link-alt"></i> Voir la boutique
+    </a>
+    <a href="../retour.html" class="sidebar-link" target="_blank">
+      <i class="fas fa-undo-alt"></i> Portail retours
+    </a>
+  </div>
+
+  <div class="sidebar-footer">
+    <a href="../index.html"><i class="fas fa-home"></i> Retour au site</a>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="admin-main">
+  <div class="admin-topbar">
+    <div class="topbar-title">
+      <h1>Dashboard</h1>
+      <p id="today-date">Chargement…</p>
+    </div>
+    <div class="topbar-actions">
+      <button class="topbar-btn topbar-btn-outline" onclick="location.reload()">
+        <i class="fas fa-sync-alt"></i> Actualiser
+      </button>
+      <button class="topbar-btn topbar-btn-primary" onclick="window.location='produits.html'">
+        <i class="fas fa-plus"></i> Nouveau produit
+      </button>
+    </div>
+  </div>
+
+  <div class="admin-content">
+
+    <!-- Alerte commandes en attente -->
+    <div style="background:#FFF3E0;border:1px solid #FFB74D;border-radius:var(--radius-sm);padding:14px 20px;margin-bottom:24px;display:flex;align-items:center;gap:12px;font-size:0.88rem;color:#E65100;">
+      <i class="fas fa-bell" style="font-size:1.1rem;"></i>
+      <span><strong>3 commandes</strong> en attente de traitement. <a href="commandes.html" style="color:var(--primary);font-weight:600;">Voir les commandes →</a></span>
+    </div>
+
+    <!-- Stats principales -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div>
+          <div class="stat-label">Chiffre du mois</div>
+          <div class="stat-value" id="ca-month">0 €</div>
+          <div class="stat-change up" id="ca-change">+12% vs mois dernier</div>
+        </div>
+        <div class="stat-icon pink"><i class="fas fa-euro-sign"></i></div>
+      </div>
+      <div class="stat-card">
+        <div>
+          <div class="stat-label">Commandes (mois)</div>
+          <div class="stat-value" id="orders-month">0</div>
+          <div class="stat-change up">+5 cette semaine</div>
+        </div>
+        <div class="stat-icon purple"><i class="fas fa-shopping-bag"></i></div>
+      </div>
+      <div class="stat-card">
+        <div>
+          <div class="stat-label">Produits actifs</div>
+          <div class="stat-value" id="products-count">0</div>
+          <div class="stat-change" style="color:var(--text-light);">En ligne</div>
+        </div>
+        <div class="stat-icon orange"><i class="fas fa-tshirt"></i></div>
+      </div>
+      <div class="stat-card">
+        <div>
+          <div class="stat-label">Retours en cours</div>
+          <div class="stat-value">2</div>
+          <div class="stat-change" style="color:var(--text-light);">À traiter</div>
+        </div>
+        <div class="stat-icon green"><i class="fas fa-undo-alt"></i></div>
+      </div>
+    </div>
+
+    <!-- Graphique CA + Commandes récentes -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;">
+
+      <!-- Graphique CA mensuel -->
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <h3><i class="fas fa-chart-bar" style="color:var(--primary);margin-right:8px;"></i>Chiffre d'Affaires – 6 derniers mois</h3>
+          <a href="chiffre-affaire.html" style="font-size:0.8rem;color:var(--primary);">Détails →</a>
+        </div>
+        <div class="admin-card-body" style="padding:24px;">
+          <div class="chart-bars" id="ca-chart" style="padding-bottom:24px;"></div>
+        </div>
+      </div>
+
+      <!-- Commandes récentes -->
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <h3><i class="fas fa-clock" style="color:var(--primary);margin-right:8px;"></i>Dernières commandes</h3>
+          <a href="commandes.html" style="font-size:0.8rem;color:var(--primary);">Toutes →</a>
+        </div>
+        <div class="admin-card-body">
+          <table class="admin-table" id="recent-orders-table">
+            <thead>
+              <tr>
+                <th>Commande</th>
+                <th>Client</th>
+                <th>Montant</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody id="recent-orders-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Produits en stock faible + Top ventes -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+
+      <!-- Stock faible -->
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <h3><i class="fas fa-exclamation-triangle" style="color:var(--warning);margin-right:8px;"></i>Stock faible</h3>
+          <a href="produits.html" style="font-size:0.8rem;color:var(--primary);">Gérer →</a>
+        </div>
+        <div class="admin-card-body">
+          <table class="admin-table">
+            <thead>
+              <tr><th>Produit</th><th>Catégorie</th><th class="td-center">Stock</th></tr>
+            </thead>
+            <tbody id="low-stock-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Top ventes -->
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <h3><i class="fas fa-fire" style="color:var(--error);margin-right:8px;"></i>Top ventes du mois</h3>
+        </div>
+        <div class="admin-card-body">
+          <table class="admin-table">
+            <thead>
+              <tr><th>Produit</th><th class="td-center">Ventes</th><th>Revenus</th></tr>
+            </thead>
+            <tbody id="top-sales-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="../js/products.js"></script>
+<script>
+// Données simulées
+const ORDERS = [
+  { id:"#MP-2025-8847", client:"Sophie Martin", email:"s.martin@email.fr", date:"08/05/2025", montant:129.85, statut:"En attente", livraison:"En préparation" },
+  { id:"#MP-2025-8846", client:"Léa Dubois", email:"lea.d@email.fr", date:"07/05/2025", montant:89.90, statut:"Expédié", livraison:"En transit", tracking:"6V12345678FR" },
+  { id:"#MP-2025-8845", client:"Emma Bernard", email:"e.bernard@email.fr", date:"07/05/2025", montant:249.90, statut:"Livré", livraison:"Livré", tracking:"6V09876543FR" },
+  { id:"#MP-2025-8844", client:"Clara Petit", email:"c.petit@email.fr", date:"06/05/2025", montant:59.90, statut:"En attente", livraison:"En préparation" },
+  { id:"#MP-2025-8843", client:"Alice Moreau", email:"a.moreau@email.fr", date:"05/05/2025", montant:189.90, statut:"Expédié", livraison:"En transit", tracking:"6V11112222FR" },
+  { id:"#MP-2025-8842", client:"Chloé Rousseau", email:"c.rousseau@email.fr", date:"04/05/2025", montant:79.90, statut:"Livré", livraison:"Livré" },
+  { id:"#MP-2025-8841", client:"Marie Blanc", email:"m.blanc@email.fr", date:"03/05/2025", montant:149.90, statut:"En attente", livraison:"En préparation" },
+];
+
+const CA_DATA = [
+  { month:"Déc", value:1850 },
+  { month:"Jan", value:2200 },
+  { month:"Fév", value:1980 },
+  { month:"Mar", value:2750 },
+  { month:"Avr", value:3100 },
+  { month:"Mai", value:2420 },
+];
+
+// Date
+const now = new Date();
+document.getElementById("today-date").textContent = now.toLocaleDateString("fr-FR", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
+
+// Stats
+const caMonth = ORDERS.reduce((s, o) => s + o.montant, 0);
+document.getElementById("ca-month").textContent = caMonth.toFixed(2).replace(".", ",") + " €";
+document.getElementById("orders-month").textContent = ORDERS.length;
+document.getElementById("products-count").textContent = PRODUCTS.length;
+
+// Graphique CA
+const maxCA = Math.max(...CA_DATA.map(d => d.value));
+const chartBars = document.getElementById("ca-chart");
+CA_DATA.forEach(d => {
+  const bar = document.createElement("div");
+  bar.className = "chart-bar";
+  bar.style.height = (d.value / maxCA * 100) + "%";
+  bar.setAttribute("data-label", d.month);
+  bar.title = `${d.month}: ${d.value.toLocaleString("fr-FR")} €`;
+  chartBars.appendChild(bar);
+});
+
+// Statut badge
+function getStatusBadge(statut) {
+  const map = { "En attente":"badge-warning", "Expédié":"badge-info", "Livré":"badge-success", "Annulé":"badge-error" };
+  return `<span class="status-badge ${map[statut]||"badge-info"}">${statut}</span>`;
+}
+
+// Commandes récentes
+const recentBody = document.getElementById("recent-orders-body");
+ORDERS.slice(0, 5).forEach(o => {
+  const initials = o.client.split(" ").map(n => n[0]).join("").toUpperCase();
+  recentBody.innerHTML += `
+    <tr>
+      <td><span style="font-size:0.8rem;font-weight:600;color:var(--primary);">${o.id}</span></td>
+      <td style="display:flex;align-items:center;gap:8px;">
+        <div class="order-avatar">${initials}</div>
+        <span>${o.client}</span>
+      </td>
+      <td><strong>${o.montant.toFixed(2).replace(".", ",")} €</strong></td>
+      <td>${getStatusBadge(o.statut)}</td>
+    </tr>`;
+});
+
+// Stock faible
+const lowStockBody = document.getElementById("low-stock-body");
+PRODUCTS.filter(p => p.stock < 10).sort((a,b) => a.stock - b.stock).forEach(p => {
+  lowStockBody.innerHTML += `
+    <tr>
+      <td style="display:flex;align-items:center;gap:10px;">
+        <div class="prod-thumb"><i class="fas fa-tshirt"></i></div>
+        <span style="font-size:0.85rem;">${p.name.length > 25 ? p.name.slice(0,25)+"…" : p.name}</span>
+      </td>
+      <td>${getCategoryLabel(p.category)}</td>
+      <td class="td-center">
+        <span class="status-badge ${p.stock <= 5 ? 'badge-error' : 'badge-warning'}">${p.stock}</span>
+      </td>
+    </tr>`;
+});
+
+// Top ventes simulés
+const topSalesData = [
+  { name:"Robe Midi Fleurie", ventes:24, rev:2157.60 },
+  { name:"Sac à Main Fuchsia", ventes:18, rev:2698.20 },
+  { name:"Pantalon Taille Haute", ventes:15, rev:1198.50 },
+  { name:"Robe Soirée Velours", ventes:11, rev:2088.90 },
+  { name:"Veste Blazer Crème", ventes:9, rev:1079.10 },
+];
+const topBody = document.getElementById("top-sales-body");
+topSalesData.forEach((item, i) => {
+  topBody.innerHTML += `
+    <tr>
+      <td style="display:flex;align-items:center;gap:10px;">
+        <span style="width:22px;height:22px;border-radius:50%;background:var(--gradient);color:#fff;font-size:0.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${i+1}</span>
+        <span style="font-size:0.85rem;">${item.name}</span>
+      </td>
+      <td class="td-center"><strong>${item.ventes}</strong></td>
+      <td style="color:var(--success);font-weight:600;">${item.rev.toFixed(2).replace(".",",")} €</td>
+    </tr>`;
+});
+
+function getCategoryLabel(catId) {
+  const map = { robes:"Robes", jupes:"Jupes", vestes:"Vestes", pantalons:"Pantalons", sacs:"Sacs" };
+  return map[catId] || catId;
+}
+</script>
+</body>
+</html>

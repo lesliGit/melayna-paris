@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demande de Retour – Melayna Paris</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-top">✨ Retours acceptés sous 14 jours – Frais de retour à la charge du client ✨</div>
+  <div class="header-main">
+    <a href="index.html" class="logo"><span class="logo-name">Melayna</span><span class="logo-sub">Paris</span></a>
+    <form class="search-bar"><input type="search" placeholder="Rechercher…"><button type="submit" class="search-btn"><i class="fas fa-search"></i></button></form>
+    <div class="header-actions">
+      <button class="action-btn" onclick="window.location='panier.html'">
+        <i class="fas fa-shopping-bag"></i><span>Panier</span>
+        <span class="cart-badge" id="cart-badge" style="display:none">0</span>
+      </button>
+    </div>
+  </div>
+  <nav class="header-nav">
+    <ul class="nav-list">
+      <li class="nav-item"><a href="index.html">Accueil</a></li>
+      <li class="nav-item"><a href="boutique.html">Boutique</a></li>
+    </ul>
+  </nav>
+</header>
+
+<!-- PAGE HEADER -->
+<div style="background:var(--gradient); padding:40px; color:#fff; text-align:center;">
+  <h1><i class="fas fa-undo-alt" style="margin-right:12px;"></i>Portail de Retour</h1>
+  <p style="opacity:0.85;margin-top:8px;">Initiez votre demande de retour en quelques étapes simples</p>
+</div>
+
+<div class="section" style="max-width:900px;">
+  <nav class="breadcrumb">
+    <a href="index.html">Accueil</a>
+    <i class="fas fa-chevron-right"></i>
+    <span>Demande de retour</span>
+  </nav>
+
+  <!-- Info banner -->
+  <div style="background:var(--gradient-soft);border-radius:var(--radius);padding:24px;margin-bottom:40px;display:grid;grid-template-columns:repeat(3,1fr);gap:20px;text-align:center;">
+    <div>
+      <i class="fas fa-calendar-check" style="font-size:1.8rem;color:var(--primary);margin-bottom:10px;display:block;"></i>
+      <strong style="font-size:0.9rem;">14 jours</strong>
+      <p style="font-size:0.8rem;color:var(--text-medium);margin-top:4px;">pour initier votre retour</p>
+    </div>
+    <div>
+      <i class="fas fa-box" style="font-size:1.8rem;color:var(--primary);margin-bottom:10px;display:block;"></i>
+      <strong style="font-size:0.9rem;">Articles neufs</strong>
+      <p style="font-size:0.8rem;color:var(--text-medium);margin-top:4px;">non portés, avec étiquettes</p>
+    </div>
+    <div>
+      <i class="fas fa-euro-sign" style="font-size:1.8rem;color:var(--primary);margin-bottom:10px;display:block;"></i>
+      <strong style="font-size:0.9rem;">Frais de retour</strong>
+      <p style="font-size:0.8rem;color:var(--text-medium);margin-top:4px;">à la charge du client</p>
+    </div>
+  </div>
+
+  <!-- Formulaire de retour -->
+  <div class="return-form" id="return-form-container">
+    <h3 style="margin-bottom:28px;display:flex;align-items:center;gap:10px;">
+      <i class="fas fa-clipboard-list" style="color:var(--primary);"></i>
+      Formulaire de demande de retour
+    </h3>
+
+    <form id="return-form" onsubmit="submitReturn(event)">
+      <!-- Infos commande -->
+      <div style="background:var(--gradient-soft);border-radius:var(--radius-sm);padding:20px;margin-bottom:28px;">
+        <h4 style="margin-bottom:16px;font-size:0.95rem;">Informations sur votre commande</h4>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label>N° de commande <span>*</span></label>
+            <input type="text" class="form-control" required placeholder="ex: #MP-2025-1234" id="order-num">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>E-mail de commande <span>*</span></label>
+            <input type="email" class="form-control" required placeholder="votre@email.fr">
+          </div>
+        </div>
+      </div>
+
+      <!-- Article à retourner -->
+      <div class="form-group">
+        <label>Article(s) à retourner <span>*</span></label>
+        <select class="form-control" required id="return-item">
+          <option value="">– Sélectionnez l'article –</option>
+          <option>Robe Midi Fleurie Parisienne</option>
+          <option>Jupe Évasée Vichy Rose</option>
+          <option>Veste Blazer Oversize Crème</option>
+          <option>Pantalon Taille Haute Noir</option>
+          <option>Sac à Main Cuir Fuchsia</option>
+          <option>Robe Soirée Velours Violet</option>
+          <option>Jupe Longue Bohème Imprimée</option>
+          <option>Manteau Camel Structuré</option>
+          <option>Autre article</option>
+        </select>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="form-group">
+          <label>Taille retournée <span>*</span></label>
+          <select class="form-control" required>
+            <option value="">– Taille –</option>
+            <option>XS</option><option>S</option><option>M</option>
+            <option>L</option><option>XL</option><option>XXL</option><option>Unique</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Quantité retournée <span>*</span></label>
+          <input type="number" class="form-control" required min="1" max="10" value="1" placeholder="1">
+        </div>
+      </div>
+
+      <!-- Motif du retour -->
+      <div class="form-group">
+        <label>Motif du retour <span>*</span></label>
+        <select class="form-control" required id="return-reason" onchange="toggleOtherReason()">
+          <option value="">– Sélectionnez le motif –</option>
+          <option value="taille">Problème de taille (trop grand / trop petit)</option>
+          <option value="qualite">Problème de qualité</option>
+          <option value="couleur">Couleur différente de la photo</option>
+          <option value="defaut">Article défectueux</option>
+          <option value="changement">Changement d'avis</option>
+          <option value="cadeau">Cadeau non souhaité</option>
+          <option value="autre">Autre motif</option>
+        </select>
+      </div>
+
+      <div class="form-group" id="other-reason-group" style="display:none;">
+        <label>Précisez le motif <span>*</span></label>
+        <textarea class="form-control" id="other-reason" rows="3" placeholder="Décrivez le motif de votre retour…"></textarea>
+      </div>
+
+      <!-- Condition de l'article -->
+      <div class="form-group">
+        <label>État de l'article <span>*</span></label>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:6px;">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:400;">
+            <input type="radio" name="condition" value="neuf" required style="accent-color:var(--primary);">
+            Article non porté, étiquettes intactes
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:400;">
+            <input type="radio" name="condition" value="essaye" style="accent-color:var(--primary);">
+            Article essayé uniquement, non porté
+          </label>
+        </div>
+      </div>
+
+      <!-- Remboursement souhaité -->
+      <div class="form-group">
+        <label>Souhait de remboursement <span>*</span></label>
+        <select class="form-control" required>
+          <option value="">– Choisissez –</option>
+          <option value="remboursement">Remboursement sur PayPal</option>
+          <option value="echange">Échange contre une autre taille</option>
+          <option value="avoir">Avoir valable 6 mois</option>
+        </select>
+      </div>
+
+      <!-- Commentaires additionnels -->
+      <div class="form-group">
+        <label>Commentaires additionnels</label>
+        <textarea class="form-control" rows="3" placeholder="Toute information utile pour traiter votre retour…"></textarea>
+      </div>
+
+      <!-- CGV retour -->
+      <div style="background:#FFF5F9;border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;margin-bottom:24px;font-size:0.82rem;color:var(--text-medium);">
+        <p><strong>⚠️ Conditions de retour :</strong></p>
+        <ul style="list-style:disc;padding-left:20px;margin-top:8px;line-height:1.7;">
+          <li>Les retours doivent être initiés dans les <strong>14 jours</strong> suivant la réception.</li>
+          <li>Les articles doivent être <strong>non portés</strong>, avec toutes leurs étiquettes.</li>
+          <li>Les <strong>frais de retour sont à la charge du client</strong> (envoi Colissimo recommandé avec suivi).</li>
+          <li>Le remboursement sera effectué sous 5–10 jours ouvrés après réception et contrôle de l'article.</li>
+        </ul>
+      </div>
+
+      <div class="form-group">
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-weight:400;line-height:1.4;">
+          <input type="checkbox" required style="accent-color:var(--primary);margin-top:3px;flex-shrink:0;">
+          J'ai lu et j'accepte les conditions de retour de Melayna Paris. Je confirme que l'article est en état de retour.
+        </label>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block btn-lg">
+        <i class="fas fa-paper-plane"></i> Envoyer ma demande de retour
+      </button>
+    </form>
+  </div>
+
+  <!-- Message de succès (caché par défaut) -->
+  <div id="return-success" style="display:none;text-align:center;padding:60px 40px;background:#fff;border-radius:var(--radius);box-shadow:0 4px 30px var(--shadow);">
+    <div style="width:90px;height:90px;border-radius:50%;background:var(--gradient);color:#fff;font-size:2.2rem;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;">
+      <i class="fas fa-check"></i>
+    </div>
+    <h2 style="margin-bottom:12px;" class="gradient-text">Demande envoyée !</h2>
+    <p style="color:var(--text-medium);margin-bottom:30px;" id="success-msg"></p>
+    <div style="background:var(--gradient-soft);border-radius:var(--radius);padding:20px;margin-bottom:30px;text-align:left;">
+      <p style="font-size:0.88rem;color:var(--text-medium);">
+        <i class="fas fa-info-circle" style="color:var(--primary);"></i>
+        Vous recevrez un e-mail de confirmation avec les instructions pour l'envoi de votre colis.
+        Pensez à conserver votre preuve d'envoi.
+      </p>
+    </div>
+    <a href="boutique.html" class="btn btn-primary">
+      <i class="fas fa-shopping-bag"></i> Retour à la boutique
+    </a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="logo"><span class="logo-name">Melayna</span><span class="logo-sub" style="color:rgba(255,255,255,0.5)">Paris</span></div>
+      <p>Votre boutique de mode féminine en ligne.</p>
+    </div>
+    <div class="footer-col"><h4>Boutique</h4><ul><li><a href="boutique.html">Tous les articles</a></li></ul></div>
+    <div class="footer-col"><h4>Aide</h4><ul><li><a href="#">Livraison</a></li><li><a href="#">CGV</a></li></ul></div>
+    <div class="footer-col"><h4>Contact</h4><ul><li><a href="#">Nous contacter</a></li></ul></div>
+  </div>
+  <div class="footer-bottom"><span>© 2025 Melayna Paris.</span></div>
+</footer>
+
+<script src="js/products.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/main.js"></script>
+<script>
+// Préremplir si commande connue
+window.addEventListener("DOMContentLoaded", () => {
+  const lastOrder = localStorage.getItem("lastOrder");
+  if (lastOrder) {
+    const order = JSON.parse(lastOrder);
+    const numInput = document.getElementById("order-num");
+    if (numInput) numInput.value = order.num;
+  }
+});
+
+function toggleOtherReason() {
+  const val = document.getElementById("return-reason").value;
+  document.getElementById("other-reason-group").style.display = val === "autre" ? "block" : "none";
+  if (val === "autre") {
+    document.getElementById("other-reason").setAttribute("required", "");
+  } else {
+    document.getElementById("other-reason").removeAttribute("required");
+  }
+}
+
+function submitReturn(e) {
+  e.preventDefault();
+  const item = document.getElementById("return-item").value;
+  const num = document.getElementById("order-num").value;
+
+  // Masquer formulaire, afficher succès
+  document.getElementById("return-form-container").style.display = "none";
+  document.getElementById("return-success").style.display = "block";
+  document.getElementById("success-msg").textContent =
+    `Votre demande de retour pour "${item}" (commande ${num}) a bien été enregistrée. Nous la traiterons dans les plus brefs délais.`;
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+</script>
+</body>
+</html>

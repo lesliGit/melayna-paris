@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paiement – Melayna Paris</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- HEADER simplifié pour le tunnel de paiement -->
+<header class="site-header">
+  <div class="header-top">🔒 Paiement sécurisé – Vos données sont protégées</div>
+  <div class="header-main" style="justify-content:center;">
+    <a href="index.html" class="logo" style="text-align:center;">
+      <span class="logo-name">Melayna</span>
+      <span class="logo-sub">Paris</span>
+    </a>
+  </div>
+</header>
+
+<!-- ÉTAPES CHECKOUT -->
+<div style="background:#fff; border-bottom:1px solid var(--border); padding:20px 40px;">
+  <div style="max-width:800px; margin:0 auto; display:flex; align-items:center; justify-content:center; gap:0;">
+    <div style="display:flex;align-items:center;gap:10px;color:var(--success);">
+      <div style="width:32px;height:32px;border-radius:50%;background:var(--success);color:#fff;display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:700;">
+        <i class="fas fa-check"></i>
+      </div>
+      <span style="font-size:0.85rem;font-weight:600;">Panier</span>
+    </div>
+    <div style="flex:1;height:2px;background:var(--primary);margin:0 16px;"></div>
+    <div style="display:flex;align-items:center;gap:10px;color:var(--primary);">
+      <div style="width:32px;height:32px;border-radius:50%;background:var(--gradient);color:#fff;display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:700;">2</div>
+      <span style="font-size:0.85rem;font-weight:600;color:var(--primary);">Paiement</span>
+    </div>
+    <div style="flex:1;height:2px;background:var(--border);margin:0 16px;"></div>
+    <div style="display:flex;align-items:center;gap:10px;color:var(--text-light);">
+      <div style="width:32px;height:32px;border-radius:50%;background:var(--border);color:var(--text-light);display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:700;">3</div>
+      <span style="font-size:0.85rem;">Confirmation</span>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="max-width:900px;">
+  <div style="display:grid; grid-template-columns:1fr 360px; gap:30px; align-items:start;">
+
+    <!-- Formulaire de livraison -->
+    <div>
+      <div style="background:#fff;border-radius:var(--radius);padding:30px;box-shadow:0 2px 12px var(--shadow);margin-bottom:24px;">
+        <h3 style="margin-bottom:24px;display:flex;align-items:center;gap:10px;">
+          <i class="fas fa-map-marker-alt" style="color:var(--primary);"></i>
+          Adresse de livraison
+        </h3>
+        <form id="shipping-form">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="form-group">
+              <label>Prénom <span>*</span></label>
+              <input type="text" class="form-control" required placeholder="Marie">
+            </div>
+            <div class="form-group">
+              <label>Nom <span>*</span></label>
+              <input type="text" class="form-control" required placeholder="Dupont">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Adresse <span>*</span></label>
+            <input type="text" class="form-control" required placeholder="15 rue de la Paix">
+          </div>
+          <div style="display:grid;grid-template-columns:120px 1fr;gap:16px;">
+            <div class="form-group">
+              <label>Code postal <span>*</span></label>
+              <input type="text" class="form-control" required placeholder="75001" maxlength="5">
+            </div>
+            <div class="form-group">
+              <label>Ville <span>*</span></label>
+              <input type="text" class="form-control" required placeholder="Paris">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>E-mail <span>*</span></label>
+            <input type="email" class="form-control" required placeholder="marie@email.com">
+          </div>
+          <div class="form-group">
+            <label>Téléphone <span>*</span></label>
+            <input type="tel" class="form-control" required placeholder="06 12 34 56 78">
+          </div>
+          <div class="form-group">
+            <label>Instructions de livraison</label>
+            <textarea class="form-control" rows="3" placeholder="Code d'entrée, étage, précisions…"></textarea>
+          </div>
+        </form>
+      </div>
+
+      <!-- Mode de livraison -->
+      <div style="background:#fff;border-radius:var(--radius);padding:30px;box-shadow:0 2px 12px var(--shadow);">
+        <h3 style="margin-bottom:20px;display:flex;align-items:center;gap:10px;">
+          <i class="fas fa-truck" style="color:var(--primary);"></i>
+          Mode de livraison
+        </h3>
+        <div class="shipping-option selected" style="cursor:default;">
+          <input type="radio" name="ship" checked>
+          <label style="cursor:default;">
+            <strong>Colissimo – La Poste</strong><br>
+            <span style="font-size:0.8rem;color:var(--text-light);">Délai : 2–3 jours ouvrés. Suivi de colis inclus.</span>
+          </label>
+          <span class="shipping-price" id="shipping-display">6,95 €</span>
+        </div>
+        <p style="font-size:0.8rem;color:var(--text-light);margin-top:12px;">
+          <i class="fas fa-info-circle"></i>
+          Le prix final de livraison est calculé selon le poids et la destination de votre commande.
+        </p>
+      </div>
+    </div>
+
+    <!-- Récapitulatif & Paiement -->
+    <div>
+      <!-- Résumé commande -->
+      <div style="background:#fff;border-radius:var(--radius);padding:28px;box-shadow:0 2px 12px var(--shadow);margin-bottom:20px;">
+        <h3 style="margin-bottom:20px;">Votre commande</h3>
+        <div id="order-summary">
+          <!-- Rempli par JS -->
+        </div>
+      </div>
+
+      <!-- PayPal -->
+      <div class="paypal-section">
+        <div style="font-size:0.88rem;color:var(--text-medium);margin-bottom:16px;text-align:left;">
+          <i class="fas fa-lock" style="color:var(--success);"></i>
+          Paiement 100% sécurisé via PayPal. Vous pouvez payer avec votre compte PayPal ou par carte bancaire.
+        </div>
+
+        <!-- Bouton PayPal officiel (à configurer avec vos identifiants) -->
+        <div id="paypal-button-container" style="min-height:50px;">
+          <button class="paypal-btn" onclick="simulatePaypal()">
+            <i class="fab fa-paypal"></i> Payer avec PayPal
+          </button>
+        </div>
+
+        <div style="margin-top:16px;display:flex;justify-content:center;gap:12px;align-items:center;opacity:0.5;">
+          <i class="fab fa-cc-visa fa-2x"></i>
+          <i class="fab fa-cc-mastercard fa-2x"></i>
+          <i class="fab fa-cc-amex fa-2x"></i>
+        </div>
+      </div>
+
+      <a href="panier.html" style="display:block;text-align:center;font-size:0.85rem;color:var(--text-light);margin-top:16px;">
+        <i class="fas fa-arrow-left"></i> Retour au panier
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER minimal -->
+<footer style="background:var(--text-dark);color:rgba(255,255,255,0.6);text-align:center;padding:24px;font-size:0.82rem;margin-top:60px;">
+  © 2025 Melayna Paris – Paiement sécurisé <i class="fab fa-paypal"></i>
+  &nbsp;|&nbsp; <a href="#" style="color:rgba(255,255,255,0.5);">Mentions légales</a>
+  &nbsp;|&nbsp; <a href="#" style="color:rgba(255,255,255,0.5);">CGV</a>
+</footer>
+
+<script src="js/products.js"></script>
+<script src="js/cart.js"></script>
+<script>
+// Récapitulatif commande
+function renderOrderSummary() {
+  const summary = document.getElementById("order-summary");
+  if (Cart.items.length === 0) {
+    summary.innerHTML = `<p style="color:var(--text-light);font-size:0.88rem;">Panier vide.</p>`;
+    return;
+  }
+  const subtotal = Cart.getTotal();
+  const shipping = 6.95;
+  const total = subtotal + shipping;
+
+  summary.innerHTML = `
+    ${Cart.items.map(item => `
+      <div style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:0.88rem;">
+        <span>${item.name} <span style="color:var(--text-light);">x${item.qty} (${item.size})</span></span>
+        <span style="font-weight:600;">${formatPrice(item.price * item.qty)}</span>
+      </div>
+    `).join("")}
+    <div style="border-top:1px solid var(--border);margin:16px 0;"></div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:0.88rem;color:var(--text-medium);">
+      <span>Sous-total</span><span>${formatPrice(subtotal)}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:16px;font-size:0.88rem;color:var(--text-medium);">
+      <span>Livraison Colissimo</span><span>${formatPrice(shipping)}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:1.05rem;font-weight:700;">
+      <span>Total TTC</span>
+      <span style="background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">${formatPrice(total)}</span>
+    </div>
+  `;
+}
+
+function simulatePaypal() {
+  // Validation formulaire
+  const form = document.getElementById("shipping-form");
+  const inputs = form.querySelectorAll("input[required]");
+  let valid = true;
+  inputs.forEach(input => {
+    if (!input.value.trim()) {
+      input.style.borderColor = "var(--error)";
+      valid = false;
+    } else {
+      input.style.borderColor = "var(--border)";
+    }
+  });
+
+  if (!valid) {
+    showToast('<i class="fas fa-exclamation-circle" style="color:var(--error)"></i> <span>Veuillez remplir tous les champs obligatoires</span>');
+    return;
+  }
+
+  // Simuler redirection PayPal
+  const btn = document.querySelector(".paypal-btn");
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connexion à PayPal…';
+  btn.disabled = true;
+
+  // IMPORTANT: Remplacer ceci par la vraie intégration PayPal SDK
+  // Voir : https://developer.paypal.com/sdk/js/
+  setTimeout(() => {
+    Cart.clear();
+    window.location.href = "confirmation.html";
+  }, 2000);
+}
+
+function showToast(html) {
+  let container = document.querySelector(".toast-container");
+  if (!container) {
+    container = document.createElement("div");
+    container.className = "toast-container";
+    document.body.appendChild(container);
+  }
+  const toast = document.createElement("div");
+  toast.className = "toast";
+  toast.innerHTML = html;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3500);
+}
+
+Cart.init();
+renderOrderSummary();
+</script>
+</body>
+</html>

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Commandes – Admin Melayna Paris</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="admin-sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-name">Melayna</div>
+    <span class="logo-sub">Paris</span>
+    <div class="sidebar-badge">Admin</div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Principal</div>
+    <a href="index.html" class="sidebar-link"><i class="fas fa-chart-line"></i> Dashboard</a>
+    <a href="commandes.html" class="sidebar-link active"><i class="fas fa-shopping-bag"></i> Commandes<span class="sidebar-notif">3</span></a>
+    <a href="produits.html" class="sidebar-link"><i class="fas fa-tshirt"></i> Produits</a>
+    <a href="chiffre-affaire.html" class="sidebar-link"><i class="fas fa-euro-sign"></i> Chiffre d'Affaires</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Boutique</div>
+    <a href="../index.html" class="sidebar-link" target="_blank"><i class="fas fa-external-link-alt"></i> Voir la boutique</a>
+    <a href="../retour.html" class="sidebar-link" target="_blank"><i class="fas fa-undo-alt"></i> Portail retours</a>
+  </div>
+  <div class="sidebar-footer"><a href="../index.html"><i class="fas fa-home"></i> Retour au site</a></div>
+</aside>
+
+<!-- MAIN -->
+<main class="admin-main">
+  <div class="admin-topbar">
+    <div class="topbar-title">
+      <h1>Gestion des Commandes</h1>
+      <p>Suivez et gérez toutes vos commandes</p>
+    </div>
+    <div class="topbar-actions">
+      <button class="topbar-btn topbar-btn-outline" onclick="exportCSV()">
+        <i class="fas fa-download"></i> Exporter CSV
+      </button>
+    </div>
+  </div>
+
+  <div class="admin-content">
+
+    <!-- Filtres statut -->
+    <div style="display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap;align-items:center;">
+      <div class="admin-search">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Rechercher commande, client…" id="order-search" oninput="filterOrders()">
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-left:auto;">
+        <button class="btn btn-sm" id="filter-all" onclick="setFilter('all')" style="background:var(--gradient);color:#fff;">Tout</button>
+        <button class="btn btn-sm btn-outline" id="filter-attente" onclick="setFilter('En attente')">En attente (3)</button>
+        <button class="btn btn-sm btn-outline" id="filter-expedie" onclick="setFilter('Expédié')">Expédié (2)</button>
+        <button class="btn btn-sm btn-outline" id="filter-livre" onclick="setFilter('Livré')">Livré (2)</button>
+      </div>
+    </div>
+
+    <!-- Tableau commandes -->
+    <div class="admin-card">
+      <div class="admin-card-header">
+        <h3>Liste des commandes <span style="color:var(--text-light);font-weight:400;font-size:0.85rem;" id="order-count"></span></h3>
+      </div>
+      <div class="admin-card-body">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>N° Commande</th>
+              <th>Client</th>
+              <th>Date</th>
+              <th>Articles</th>
+              <th>Montant</th>
+              <th>Paiement</th>
+              <th>Livraison</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="orders-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Modale détail commande -->
+<div id="order-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:999;display:none;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:var(--radius);padding:36px;max-width:600px;width:90%;max-height:90vh;overflow-y:auto;position:relative;">
+    <button onclick="closeModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:1.4rem;color:var(--text-light);cursor:pointer;">&times;</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<script src="../js/products.js"></script>
+<script>
+const ORDERS = [
+  { id:"#MP-2025-8847", client:"Sophie Martin", email:"s.martin@email.fr", date:"08/05/2025", articles:["Robe Midi Fleurie (M)", "Sac Fuchsia (unique)"], montant:129.85, paiement:"PayPal", statut:"En attente", livraison:"En préparation", tracking:"" },
+  { id:"#MP-2025-8846", client:"Léa Dubois", email:"lea.d@email.fr", date:"07/05/2025", articles:["Jupe Vichy Rose (S)"], montant:89.90, paiement:"PayPal", statut:"Expédié", livraison:"En transit", tracking:"6V12345678FR" },
+  { id:"#MP-2025-8845", client:"Emma Bernard", email:"e.bernard@email.fr", date:"07/05/2025", articles:["Manteau Camel (M)"], montant:249.90, paiement:"PayPal", statut:"Livré", livraison:"Livré", tracking:"6V09876543FR" },
+  { id:"#MP-2025-8844", client:"Clara Petit", email:"c.petit@email.fr", date:"06/05/2025", articles:["Jupe Longue Bohème (L)"], montant:59.90, paiement:"PayPal", statut:"En attente", livraison:"En préparation", tracking:"" },
+  { id:"#MP-2025-8843", client:"Alice Moreau", email:"a.moreau@email.fr", date:"05/05/2025", articles:["Robe Soirée Velours (S)", "Pantalon Noir (XS)"], montant:189.90, paiement:"PayPal", statut:"Expédié", livraison:"En transit", tracking:"6V11112222FR" },
+  { id:"#MP-2025-8842", client:"Chloé Rousseau", email:"c.rousseau@email.fr", date:"04/05/2025", articles:["Pantalon Noir (M)"], montant:79.90, paiement:"PayPal", statut:"Livré", livraison:"Livré", tracking:"6V99998888FR" },
+  { id:"#MP-2025-8841", client:"Marie Blanc", email:"m.blanc@email.fr", date:"03/05/2025", articles:["Veste Blazer Crème (L)"], montant:149.90, paiement:"PayPal", statut:"En attente", livraison:"En préparation", tracking:"" },
+];
+
+let activeFilter = "all";
+let searchTerm = "";
+
+function getStatusBadge(statut) {
+  const map = { "En attente":"badge-warning", "Expédié":"badge-info", "Livré":"badge-success", "Annulé":"badge-error" };
+  return `<span class="status-badge ${map[statut]||"badge-info"}">${statut}</span>`;
+}
+
+function setFilter(f) {
+  activeFilter = f;
+  document.querySelectorAll("[id^='filter-']").forEach(btn => {
+    btn.style.background = ""; btn.style.color = ""; btn.classList.add("btn-outline"); btn.classList.remove("btn-primary");
+  });
+  const btnId = f === "all" ? "filter-all" : `filter-${f.toLowerCase().replace(" ","").replace("é","e")}`;
+  const activeBtn = document.getElementById(btnId);
+  if (activeBtn) { activeBtn.style.background = "var(--gradient)"; activeBtn.style.color = "#fff"; activeBtn.style.border = "none"; }
+  renderOrders();
+}
+
+function filterOrders() {
+  searchTerm = document.getElementById("order-search").value.toLowerCase();
+  renderOrders();
+}
+
+function renderOrders() {
+  let list = ORDERS;
+  if (activeFilter !== "all") list = list.filter(o => o.statut === activeFilter);
+  if (searchTerm) list = list.filter(o =>
+    o.id.toLowerCase().includes(searchTerm) ||
+    o.client.toLowerCase().includes(searchTerm) ||
+    o.email.toLowerCase().includes(searchTerm)
+  );
+  document.getElementById("order-count").textContent = `(${list.length})`;
+  const body = document.getElementById("orders-body");
+  body.innerHTML = list.map(o => {
+    const initials = o.client.split(" ").map(n => n[0]).join("");
+    return `
+      <tr>
+        <td><span style="font-weight:700;color:var(--primary);font-size:0.85rem;">${o.id}</span></td>
+        <td>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="order-avatar">${initials}</div>
+            <div>
+              <div style="font-weight:600;font-size:0.88rem;">${o.client}</div>
+              <div style="font-size:0.75rem;color:var(--text-light);">${o.email}</div>
+            </div>
+          </div>
+        </td>
+        <td style="font-size:0.85rem;color:var(--text-medium);">${o.date}</td>
+        <td style="font-size:0.82rem;color:var(--text-medium);">${o.articles.length} article${o.articles.length>1?"s":""}</td>
+        <td><strong>${o.montant.toFixed(2).replace(".",",")} €</strong></td>
+        <td><span class="status-badge badge-success"><i class="fab fa-paypal"></i> ${o.paiement}</span></td>
+        <td>
+          ${o.tracking ? `<a href="https://www.laposte.fr/outils/suivre-vos-envois?code=${o.tracking}" target="_blank" style="font-size:0.8rem;color:var(--info);">${o.tracking}</a>` :
+            `<span style="font-size:0.8rem;color:var(--text-light);">—</span>`}
+        </td>
+        <td>${getStatusBadge(o.statut)}</td>
+        <td>
+          <div style="display:flex;gap:6px;">
+            <button class="btn btn-sm btn-outline" onclick="viewOrder('${o.id}')" title="Voir"><i class="fas fa-eye"></i></button>
+            ${o.statut==="En attente" ? `<button class="btn btn-sm" onclick="updateStatus('${o.id}','Expédié')" style="background:#E3F2FD;color:#1565C0;font-size:0.75rem;" title="Marquer expédié"><i class="fas fa-truck"></i></button>` : ""}
+            ${o.statut==="Expédié" ? `<button class="btn btn-sm" onclick="updateStatus('${o.id}','Livré')" style="background:#E8F5E9;color:#2E7D32;font-size:0.75rem;" title="Marquer livré"><i class="fas fa-check"></i></button>` : ""}
+            <button class="btn btn-sm btn-danger" onclick="editTracking('${o.id}')" title="Suivi"><i class="fas fa-barcode"></i></button>
+          </div>
+        </td>
+      </tr>`;
+  }).join("");
+  if (list.length === 0) {
+    body.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-light);">Aucune commande trouvée</td></tr>`;
+  }
+}
+
+function viewOrder(id) {
+  const o = ORDERS.find(x => x.id === id);
+  if (!o) return;
+  document.getElementById("modal-content").innerHTML = `
+    <h3 style="margin-bottom:20px;">Détail commande <span style="color:var(--primary);">${o.id}</span></h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+      <div><div style="font-size:0.8rem;color:var(--text-light);margin-bottom:4px;">Client</div><div style="font-weight:600;">${o.client}</div><div style="font-size:0.8rem;color:var(--text-light);">${o.email}</div></div>
+      <div><div style="font-size:0.8rem;color:var(--text-light);margin-bottom:4px;">Date</div><div style="font-weight:600;">${o.date}</div></div>
+      <div><div style="font-size:0.8rem;color:var(--text-light);margin-bottom:4px;">Statut</div><div>${getStatusBadge(o.statut)}</div></div>
+      <div><div style="font-size:0.8rem;color:var(--text-light);margin-bottom:4px;">Paiement</div><div class="status-badge badge-success">${o.paiement} ✓</div></div>
+    </div>
+    <div style="background:var(--bg);border-radius:var(--radius-sm);padding:16px;margin-bottom:20px;">
+      <div style="font-size:0.85rem;font-weight:600;margin-bottom:12px;">Articles commandés</div>
+      ${o.articles.map(a => `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:0.88rem;"><i class="fas fa-tshirt" style="color:var(--primary);"></i>${a}</div>`).join("")}
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:14px;background:#fff;border:1px solid var(--border);border-radius:var(--radius-sm);">
+      <span style="font-weight:700;">Total TTC</span>
+      <span style="font-size:1.2rem;font-weight:800;color:var(--primary);">${o.montant.toFixed(2).replace(".",",")} €</span>
+    </div>
+    ${o.tracking ? `<div style="margin-top:16px;font-size:0.85rem;"><strong>N° de suivi :</strong> <a href="https://www.laposte.fr/outils/suivre-vos-envois?code=${o.tracking}" target="_blank" style="color:var(--primary);">${o.tracking}</a></div>` : ""}
+    <div style="margin-top:20px;display:flex;gap:10px;">
+      ${o.statut==="En attente" ? `<button class="btn btn-primary" onclick="updateStatus('${o.id}','Expédié');closeModal();"><i class="fas fa-truck"></i> Marquer comme expédié</button>` : ""}
+      <button class="btn btn-outline" onclick="closeModal()">Fermer</button>
+    </div>
+  `;
+  document.getElementById("order-modal").style.display = "flex";
+}
+
+function updateStatus(id, newStatus) {
+  const o = ORDERS.find(x => x.id === id);
+  if (o) {
+    o.statut = newStatus;
+    if (newStatus === "Expédié" && !o.tracking) {
+      const tracking = prompt(`N° de suivi Colissimo pour ${id} :`, "6V");
+      if (tracking) o.tracking = tracking.trim();
+    }
+    renderOrders();
+  }
+}
+
+function editTracking(id) {
+  const o = ORDERS.find(x => x.id === id);
+  if (!o) return;
+  const tracking = prompt(`N° de suivi Colissimo pour ${id} :`, o.tracking || "6V");
+  if (tracking !== null) { o.tracking = tracking.trim(); renderOrders(); }
+}
+
+function closeModal() {
+  document.getElementById("order-modal").style.display = "none";
+}
+
+function exportCSV() {
+  const rows = [["N° Commande","Client","Email","Date","Montant","Statut","Tracking"]];
+  ORDERS.forEach(o => rows.push([o.id, o.client, o.email, o.date, o.montant, o.statut, o.tracking]));
+  const csv = rows.map(r => r.join(";")).join("\n");
+  const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "commandes_melayna.csv"; a.click();
+}
+
+// Clic en dehors de la modale
+document.getElementById("order-modal").addEventListener("click", (e) => {
+  if (e.target === document.getElementById("order-modal")) closeModal();
+});
+
+renderOrders();
+</script>
+</body>
+</html>

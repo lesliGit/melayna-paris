@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mes Favoris – Melayna Paris</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-top">✨ Livraison Colissimo – Retours sous 14 jours ✨</div>
+  <div class="header-main">
+    <a href="index.html" class="logo"><span class="logo-name">Melayna</span><span class="logo-sub">Paris</span></a>
+    <form class="search-bar"><input type="search" placeholder="Rechercher…"><button type="submit" class="search-btn"><i class="fas fa-search"></i></button></form>
+    <div class="header-actions">
+      <button class="action-btn" onclick="window.location='wishlist.html'" style="color:var(--primary);">
+        <i class="fas fa-heart"></i><span>Favoris</span>
+      </button>
+      <button class="action-btn" onclick="window.location='panier.html'">
+        <i class="fas fa-shopping-bag"></i><span>Panier</span>
+        <span class="cart-badge" id="cart-badge" style="display:none">0</span>
+      </button>
+    </div>
+  </div>
+  <nav class="header-nav">
+    <ul class="nav-list">
+      <li class="nav-item"><a href="index.html">Accueil</a></li>
+      <li class="nav-item"><a href="boutique.html">Boutique</a></li>
+      <li class="nav-item"><a href="boutique.html?cat=robes">Robes</a></li>
+      <li class="nav-item"><a href="boutique.html?cat=jupes">Jupes</a></li>
+      <li class="nav-item"><a href="boutique.html?cat=vestes">Vestes & Manteaux</a></li>
+      <li class="nav-item"><a href="boutique.html?cat=pantalons">Pantalons</a></li>
+      <li class="nav-item"><a href="boutique.html?cat=sacs">Sacs</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div style="background:var(--gradient); padding:40px; color:#fff; text-align:center;">
+  <h1><i class="fas fa-heart" style="margin-right:12px;"></i>Mes Favoris</h1>
+</div>
+
+<div class="section">
+  <nav class="breadcrumb">
+    <a href="index.html">Accueil</a>
+    <i class="fas fa-chevron-right"></i>
+    <span>Mes favoris</span>
+  </nav>
+  <div id="wishlist-content"></div>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-brand"><div class="logo"><span class="logo-name">Melayna</span><span class="logo-sub" style="color:rgba(255,255,255,0.5)">Paris</span></div><p>Votre boutique de mode féminine.</p></div>
+    <div class="footer-col"><h4>Boutique</h4><ul><li><a href="boutique.html">Tous les articles</a></li></ul></div>
+    <div class="footer-col"><h4>Mon Compte</h4><ul><li><a href="panier.html">Mon panier</a></li></ul></div>
+    <div class="footer-col"><h4>Aide</h4><ul><li><a href="#">Contact</a></li></ul></div>
+  </div>
+  <div class="footer-bottom"><span>© 2025 Melayna Paris.</span></div>
+</footer>
+
+<script src="js/products.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/main.js"></script>
+<script>
+function renderWishlist() {
+  const content = document.getElementById("wishlist-content");
+  const wished = Wishlist.items;
+  if (wished.length === 0) {
+    content.innerHTML = `
+      <div class="empty-state">
+        <i class="far fa-heart"></i>
+        <h3>Votre liste de favoris est vide</h3>
+        <p>Parcourez notre boutique et ajoutez vos coups de cœur !</p>
+        <a href="boutique.html" class="btn btn-primary"><i class="fas fa-shopping-bag"></i> Découvrir la boutique</a>
+      </div>`;
+    return;
+  }
+  const wishProducts = wished.map(id => getProductById(id)).filter(Boolean);
+  content.innerHTML = `<div style="margin-bottom:16px;font-size:0.9rem;color:var(--text-medium);">${wishProducts.length} article${wishProducts.length>1?"s":""} dans vos favoris</div>
+  <div class="products-grid" id="wishlist-grid"></div>`;
+  renderProductCards(wishProducts, document.getElementById("wishlist-grid"));
+}
+
+// Observer changements wishlist
+const origToggle = Wishlist.toggle.bind(Wishlist);
+Wishlist.toggle = function(id) {
+  const result = origToggle(id);
+  renderWishlist();
+  return result;
+};
+
+renderWishlist();
+</script>
+</body>
+</html>

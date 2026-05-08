@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chiffre d'Affaires – Admin Melayna Paris</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="admin-sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-name">Melayna</div>
+    <span class="logo-sub">Paris</span>
+    <div class="sidebar-badge">Admin</div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Principal</div>
+    <a href="index.html" class="sidebar-link"><i class="fas fa-chart-line"></i> Dashboard</a>
+    <a href="commandes.html" class="sidebar-link"><i class="fas fa-shopping-bag"></i> Commandes<span class="sidebar-notif">3</span></a>
+    <a href="produits.html" class="sidebar-link"><i class="fas fa-tshirt"></i> Produits</a>
+    <a href="chiffre-affaire.html" class="sidebar-link active"><i class="fas fa-euro-sign"></i> Chiffre d'Affaires</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Boutique</div>
+    <a href="../index.html" class="sidebar-link" target="_blank"><i class="fas fa-external-link-alt"></i> Voir la boutique</a>
+  </div>
+  <div class="sidebar-footer"><a href="../index.html"><i class="fas fa-home"></i> Retour au site</a></div>
+</aside>
+
+<!-- MAIN -->
+<main class="admin-main">
+  <div class="admin-topbar">
+    <div class="topbar-title">
+      <h1>Chiffre d'Affaires</h1>
+      <p>Analyse de vos performances commerciales</p>
+    </div>
+    <div class="topbar-actions">
+      <select id="period-select" onchange="renderAll()" style="padding:9px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:0.85rem;outline:none;background:#fff;">
+        <option value="6">6 derniers mois</option>
+        <option value="12">12 derniers mois</option>
+      </select>
+      <button class="topbar-btn topbar-btn-outline" onclick="exportReport()">
+        <i class="fas fa-download"></i> Rapport
+      </button>
+    </div>
+  </div>
+
+  <div class="admin-content">
+
+    <!-- KPIs du mois en cours -->
+    <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);">
+      <div class="stat-card">
+        <div>
+          <div class="stat-label">CA Mai 2025</div>
+          <div class="stat-value">2 420 €</div>
+          <div class="stat-change down">-22% vs Avril</div>
+        </div>
+        <div class="stat-icon pink"><i class="fas fa-euro-sign"></i></div>
+      </div>
+      <div class="stat-card">
+        <div>
+          <div class="stat-label">Commandes (mois)</div>
+          <div class="stat-value">14</div>
+          <div class="stat-change up">+3 vs mois dernier</div>
+        </div>
+        <div class="stat-icon purple"><i class="fas fa-shopping-bag"></i></div>
+      </div>
+      <div class="stat-card">
+        <div>
+          <div class="stat-label">Panier moyen</div>
+          <div class="stat-value">172 €</div>
+          <div class="stat-change up">+8% vs mois dernier</div>
+        </div>
+        <div class="stat-icon orange"><i class="fas fa-shopping-cart"></i></div>
+      </div>
+      <div class="stat-card">
+        <div>
+          <div class="stat-label">CA annuel (cumul)</div>
+          <div class="stat-value">14 300 €</div>
+          <div class="stat-change up">En cours</div>
+        </div>
+        <div class="stat-icon green"><i class="fas fa-chart-line"></i></div>
+      </div>
+    </div>
+
+    <!-- Graphique CA mensuel + Répartition par catégorie -->
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:24px;margin-bottom:24px;">
+
+      <!-- Graphique barres CA mensuel -->
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <h3><i class="fas fa-chart-bar" style="color:var(--primary);margin-right:8px;"></i>CA mensuel</h3>
+        </div>
+        <div class="admin-card-body" style="padding:28px;">
+          <div style="display:flex;align-items:flex-end;gap:16px;height:200px;padding-bottom:28px;" id="ca-bars"></div>
+          <div style="display:flex;justify-content:center;gap:10px;margin-top:8px;font-size:0.75rem;color:var(--text-light);">
+            <div style="width:12px;height:12px;background:var(--gradient);border-radius:2px;display:inline-block;"></div>
+            Chiffre d'affaires mensuel
+          </div>
+        </div>
+      </div>
+
+      <!-- Répartition par catégorie -->
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <h3><i class="fas fa-chart-pie" style="color:var(--primary);margin-right:8px;"></i>Par catégorie</h3>
+        </div>
+        <div class="admin-card-body" style="padding:20px;">
+          <div id="cat-breakdown"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tableau détaillé par mois -->
+    <div class="admin-card">
+      <div class="admin-card-header">
+        <h3>Détail mensuel</h3>
+      </div>
+      <div class="admin-card-body">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Mois</th>
+              <th>Commandes</th>
+              <th>Articles vendus</th>
+              <th>CA brut</th>
+              <th>Livraison</th>
+              <th>CA net</th>
+              <th>Panier moyen</th>
+              <th>Tendance</th>
+            </tr>
+          </thead>
+          <tbody id="monthly-table"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Statuts des paiements -->
+    <div class="admin-card" style="margin-top:24px;">
+      <div class="admin-card-header">
+        <h3><i class="fab fa-paypal" style="color:#003087;margin-right:8px;"></i>Statuts des paiements</h3>
+      </div>
+      <div class="admin-card-body">
+        <table class="admin-table">
+          <thead>
+            <tr><th>N° Commande</th><th>Client</th><th>Date</th><th>Montant</th><th>Méthode</th><th>Statut paiement</th></tr>
+          </thead>
+          <tbody id="payment-table"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+const MONTHLY_DATA = [
+  { month:"Déc 2024", orders:11, items:18, gross:1850, shipping:76.45 },
+  { month:"Jan 2025", orders:14, items:22, gross:2200, shipping:97.30 },
+  { month:"Fév 2025", orders:12, items:19, gross:1980, shipping:83.40 },
+  { month:"Mar 2025", orders:17, items:28, gross:2750, shipping:118.15 },
+  { month:"Avr 2025", orders:19, items:31, gross:3100, shipping:131.85 },
+  { month:"Mai 2025", orders:14, items:22, gross:2420, shipping:97.30 },
+];
+
+const CAT_DATA = [
+  { label:"Robes", value:38, color:"#E91E8C" },
+  { label:"Sacs", value:22, color:"#9C27B0" },
+  { label:"Vestes", value:18, color:"#FF8C00" },
+  { label:"Jupes", value:14, color:"#2196F3" },
+  { label:"Pantalons", value:8, color:"#4CAF50" },
+];
+
+const PAYMENT_ROWS = [
+  { id:"#MP-2025-8847", client:"Sophie Martin", date:"08/05/2025", montant:129.85, methode:"PayPal", statut:"Confirmé" },
+  { id:"#MP-2025-8846", client:"Léa Dubois", date:"07/05/2025", montant:89.90, methode:"PayPal", statut:"Confirmé" },
+  { id:"#MP-2025-8845", client:"Emma Bernard", date:"07/05/2025", montant:249.90, methode:"PayPal", statut:"Confirmé" },
+  { id:"#MP-2025-8844", client:"Clara Petit", date:"06/05/2025", montant:59.90, methode:"PayPal", statut:"Confirmé" },
+  { id:"#MP-2025-8843", client:"Alice Moreau", date:"05/05/2025", montant:189.90, methode:"PayPal", statut:"Confirmé" },
+  { id:"#MP-2025-8842", client:"Chloé Rousseau", date:"04/05/2025", montant:79.90, methode:"PayPal", statut:"Confirmé" },
+  { id:"#MP-2025-8841", client:"Marie Blanc", date:"03/05/2025", montant:149.90, methode:"PayPal", statut:"Confirmé" },
+];
+
+function renderAll() {
+  const months = parseInt(document.getElementById("period-select").value);
+  const data = MONTHLY_DATA.slice(-months);
+  const maxCA = Math.max(...data.map(d => d.gross));
+
+  // Graphique barres
+  const bars = document.getElementById("ca-bars");
+  bars.innerHTML = data.map((d, i) => {
+    const prev = data[i-1];
+    const isUp = prev ? d.gross >= prev.gross : true;
+    return `
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div style="font-size:0.72rem;font-weight:700;color:var(--text-medium);">${d.gross.toLocaleString("fr-FR")}€</div>
+        <div style="width:100%;background:var(--gradient);border-radius:4px 4px 0 0;height:${d.gross/maxCA*160}px;opacity:0.85;transition:opacity 0.2s;cursor:default;"
+          title="${d.month}: ${d.gross.toLocaleString("fr-FR")}€"></div>
+        <div style="font-size:0.72rem;color:var(--text-light);">${d.month.split(" ")[0]}</div>
+      </div>`;
+  }).join("");
+
+  // Répartition catégories
+  const catDiv = document.getElementById("cat-breakdown");
+  catDiv.innerHTML = CAT_DATA.map(c => `
+    <div style="margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;font-size:0.83rem;margin-bottom:5px;">
+        <span style="font-weight:600;">${c.label}</span>
+        <span style="color:var(--text-light);">${c.value}%</span>
+      </div>
+      <div style="height:8px;background:#F0F0F5;border-radius:4px;overflow:hidden;">
+        <div style="height:100%;width:${c.value}%;background:${c.color};border-radius:4px;"></div>
+      </div>
+    </div>
+  `).join("");
+
+  // Tableau mensuel
+  const tableBody = document.getElementById("monthly-table");
+  tableBody.innerHTML = data.map((d, i) => {
+    const prev = data[i-1];
+    const net = d.gross - d.shipping;
+    const avg = (d.gross / d.orders).toFixed(0);
+    const trend = prev
+      ? (d.gross > prev.gross
+          ? `<span style="color:var(--success);font-weight:600;"><i class="fas fa-arrow-up"></i> +${((d.gross-prev.gross)/prev.gross*100).toFixed(1)}%</span>`
+          : `<span style="color:var(--error);font-weight:600;"><i class="fas fa-arrow-down"></i> ${((d.gross-prev.gross)/prev.gross*100).toFixed(1)}%</span>`)
+      : `<span style="color:var(--text-light);">—</span>`;
+    return `
+      <tr>
+        <td><strong>${d.month}</strong></td>
+        <td class="td-center">${d.orders}</td>
+        <td class="td-center">${d.items}</td>
+        <td style="font-weight:600;">${d.gross.toLocaleString("fr-FR")} €</td>
+        <td style="color:var(--text-medium);">${d.shipping.toFixed(2).replace(".",",")} €</td>
+        <td style="font-weight:700;color:var(--success);">${net.toFixed(2).replace(".",",")} €</td>
+        <td>${avg} €</td>
+        <td>${trend}</td>
+      </tr>`;
+  }).join("");
+
+  // Total
+  const total = data.reduce((s, d) => s + d.gross, 0);
+  const totalNet = data.reduce((s, d) => s + d.gross - d.shipping, 0);
+  tableBody.innerHTML += `
+    <tr style="background:#F8F9FC;font-weight:700;">
+      <td><strong>Total période</strong></td>
+      <td class="td-center"><strong>${data.reduce((s,d)=>s+d.orders,0)}</strong></td>
+      <td class="td-center"><strong>${data.reduce((s,d)=>s+d.items,0)}</strong></td>
+      <td><strong>${total.toLocaleString("fr-FR")} €</strong></td>
+      <td style="color:var(--text-medium);">${data.reduce((s,d)=>s+d.shipping,0).toFixed(2).replace(".",",")} €</td>
+      <td style="color:var(--success);font-weight:800;">${totalNet.toFixed(2).replace(".",",")} €</td>
+      <td>—</td>
+      <td>—</td>
+    </tr>`;
+
+  // Paiements
+  const payBody = document.getElementById("payment-table");
+  payBody.innerHTML = PAYMENT_ROWS.map(p => `
+    <tr>
+      <td style="font-weight:700;color:var(--primary);font-size:0.85rem;">${p.id}</td>
+      <td>${p.client}</td>
+      <td style="color:var(--text-medium);font-size:0.85rem;">${p.date}</td>
+      <td><strong>${p.montant.toFixed(2).replace(".",",")} €</strong></td>
+      <td><i class="fab fa-paypal" style="color:#003087;"></i> ${p.methode}</td>
+      <td><span class="status-badge badge-success"><i class="fas fa-check"></i> ${p.statut}</span></td>
+    </tr>`).join("");
+}
+
+function exportReport() {
+  const data = MONTHLY_DATA;
+  const rows = [["Mois","Commandes","Articles","CA Brut","Livraison","CA Net","Panier moyen"]];
+  data.forEach(d => rows.push([d.month, d.orders, d.items, d.gross, d.shipping.toFixed(2), (d.gross-d.shipping).toFixed(2), (d.gross/d.orders).toFixed(0)]));
+  const csv = rows.map(r => r.join(";")).join("\n");
+  const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "ca_melayna_paris.csv"; a.click();
+}
+
+renderAll();
+</script>
+</body>
+</html>

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Produits – Admin Melayna Paris</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="admin-sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-name">Melayna</div>
+    <span class="logo-sub">Paris</span>
+    <div class="sidebar-badge">Admin</div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Principal</div>
+    <a href="index.html" class="sidebar-link"><i class="fas fa-chart-line"></i> Dashboard</a>
+    <a href="commandes.html" class="sidebar-link"><i class="fas fa-shopping-bag"></i> Commandes<span class="sidebar-notif">3</span></a>
+    <a href="produits.html" class="sidebar-link active"><i class="fas fa-tshirt"></i> Produits</a>
+    <a href="chiffre-affaire.html" class="sidebar-link"><i class="fas fa-euro-sign"></i> Chiffre d'Affaires</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Boutique</div>
+    <a href="../index.html" class="sidebar-link" target="_blank"><i class="fas fa-external-link-alt"></i> Voir la boutique</a>
+  </div>
+  <div class="sidebar-footer"><a href="../index.html"><i class="fas fa-home"></i> Retour au site</a></div>
+</aside>
+
+<!-- MAIN -->
+<main class="admin-main">
+  <div class="admin-topbar">
+    <div class="topbar-title">
+      <h1>Gestion des Produits</h1>
+      <p>Créez et gérez vos fiches produits</p>
+    </div>
+    <div class="topbar-actions">
+      <button class="topbar-btn topbar-btn-primary" onclick="openAddProduct()">
+        <i class="fas fa-plus"></i> Ajouter un produit
+      </button>
+    </div>
+  </div>
+
+  <div class="admin-content">
+    <!-- Filtres & Recherche -->
+    <div style="display:flex;gap:12px;margin-bottom:24px;align-items:center;flex-wrap:wrap;">
+      <div class="admin-search" style="max-width:320px;">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Rechercher un produit…" id="product-search" oninput="renderProductsTable()">
+      </div>
+      <select id="cat-filter" onchange="renderProductsTable()" style="padding:9px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:0.85rem;color:var(--text-dark);outline:none;background:#fff;">
+        <option value="all">Toutes catégories</option>
+        <option value="robes">Robes</option>
+        <option value="jupes">Jupes</option>
+        <option value="vestes">Vestes & Manteaux</option>
+        <option value="pantalons">Pantalons</option>
+        <option value="sacs">Sacs</option>
+      </select>
+    </div>
+
+    <!-- Tableau produits -->
+    <div class="admin-card">
+      <div class="admin-card-header">
+        <h3>Catalogue produits <span style="color:var(--text-light);font-weight:400;font-size:0.85rem;" id="prod-count"></span></h3>
+      </div>
+      <div class="admin-card-body">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Photo</th>
+              <th>Nom du produit</th>
+              <th>Catégorie</th>
+              <th>Prix TTC</th>
+              <th>Ancien prix</th>
+              <th>Badge</th>
+              <th>Stock</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="products-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- MODALE : Ajouter / Modifier produit -->
+<div id="product-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.55);z-index:999;align-items:flex-start;justify-content:center;overflow-y:auto;padding:40px 20px;">
+  <div style="background:#fff;border-radius:var(--radius);padding:36px;max-width:700px;width:100%;position:relative;margin:auto;">
+    <button onclick="closeModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:1.5rem;color:var(--text-light);cursor:pointer;">&times;</button>
+    <h3 id="modal-title" style="margin-bottom:28px;">Ajouter un produit</h3>
+
+    <form id="product-form" onsubmit="saveProduct(event)">
+      <input type="hidden" id="edit-id">
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Nom du produit <span>*</span></label>
+          <input type="text" class="form-control" id="p-name" required placeholder="Ex: Robe Midi Fleurie">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Catégorie <span>*</span></label>
+          <select class="form-control" id="p-category" required>
+            <option value="">– Choisir –</option>
+            <option value="robes">Robes</option>
+            <option value="jupes">Jupes</option>
+            <option value="vestes">Vestes & Manteaux</option>
+            <option value="pantalons">Pantalons</option>
+            <option value="sacs">Sacs</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row-3">
+        <div class="form-group">
+          <label class="form-label">Prix TTC (€) <span>*</span></label>
+          <input type="number" class="form-control" id="p-price" required step="0.01" min="0" placeholder="89.90">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ancien prix (€)</label>
+          <input type="number" class="form-control" id="p-oldprice" step="0.01" min="0" placeholder="129.90">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Stock</label>
+          <input type="number" class="form-control" id="p-stock" min="0" value="0" placeholder="10">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Badge affiché</label>
+          <select class="form-control" id="p-badge">
+            <option value="">Aucun</option>
+            <option value="Nouveau">Nouveau</option>
+            <option value="Promo">Promo</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tailles disponibles</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;" id="sizes-checkboxes">
+            <label style="display:flex;align-items:center;gap:5px;font-weight:400;font-size:0.85rem;cursor:pointer;" class="form-label">
+              <input type="checkbox" value="XS" class="size-cb" style="accent-color:var(--primary);"> XS
+            </label>
+            <label style="display:flex;align-items:center;gap:5px;font-weight:400;font-size:0.85rem;cursor:pointer;" class="form-label">
+              <input type="checkbox" value="S" class="size-cb" style="accent-color:var(--primary);"> S
+            </label>
+            <label style="display:flex;align-items:center;gap:5px;font-weight:400;font-size:0.85rem;cursor:pointer;" class="form-label">
+              <input type="checkbox" value="M" class="size-cb" style="accent-color:var(--primary);"> M
+            </label>
+            <label style="display:flex;align-items:center;gap:5px;font-weight:400;font-size:0.85rem;cursor:pointer;" class="form-label">
+              <input type="checkbox" value="L" class="size-cb" style="accent-color:var(--primary);"> L
+            </label>
+            <label style="display:flex;align-items:center;gap:5px;font-weight:400;font-size:0.85rem;cursor:pointer;" class="form-label">
+              <input type="checkbox" value="XL" class="size-cb" style="accent-color:var(--primary);"> XL
+            </label>
+            <label style="display:flex;align-items:center;gap:5px;font-weight:400;font-size:0.85rem;cursor:pointer;" class="form-label">
+              <input type="checkbox" value="XXL" class="size-cb" style="accent-color:var(--primary);"> XXL
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-control" id="p-desc" rows="4" placeholder="Décrivez votre produit…"></textarea>
+      </div>
+
+      <!-- Zone upload photo -->
+      <div class="form-group">
+        <label class="form-label">Photos produit</label>
+        <div class="upload-zone" onclick="document.getElementById('photo-input').click()">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <p><strong>Cliquer pour importer</strong> ou glisser-déposer vos photos</p>
+          <p style="font-size:0.75rem;color:var(--text-light);margin-top:4px;">JPG, PNG, WEBP – max 5 Mo par image</p>
+        </div>
+        <input type="file" id="photo-input" accept="image/*" multiple style="display:none;" onchange="previewPhotos(event)">
+        <div id="photo-preview" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;"></div>
+      </div>
+
+      <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:10px;">
+        <button type="button" class="btn btn-outline" onclick="closeModal()">Annuler</button>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Enregistrer le produit</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="../js/products.js"></script>
+<script>
+// Copie locale des produits (modifiable en session)
+let products = JSON.parse(JSON.stringify(PRODUCTS));
+
+function getCategoryLabel(catId) {
+  const map = { robes:"Robes", jupes:"Jupes", vestes:"Vestes & Manteaux", pantalons:"Pantalons", sacs:"Sacs" };
+  return map[catId] || catId;
+}
+function getBadgeBadge(badge) {
+  if (badge === "Nouveau") return `<span class="status-badge badge-purple">Nouveau</span>`;
+  if (badge === "Promo") return `<span class="status-badge badge-warning">Promo</span>`;
+  return `<span style="color:var(--text-light);font-size:0.8rem;">—</span>`;
+}
+
+function renderProductsTable() {
+  const search = document.getElementById("product-search").value.toLowerCase();
+  const catFilter = document.getElementById("cat-filter").value;
+  let list = products;
+  if (catFilter !== "all") list = list.filter(p => p.category === catFilter);
+  if (search) list = list.filter(p => p.name.toLowerCase().includes(search));
+  document.getElementById("prod-count").textContent = `(${list.length})`;
+  const body = document.getElementById("products-body");
+  body.innerHTML = list.map(p => `
+    <tr>
+      <td><div class="prod-thumb"><i class="fas fa-tshirt"></i></div></td>
+      <td>
+        <div style="font-weight:600;font-size:0.88rem;">${p.name}</div>
+        <div style="font-size:0.75rem;color:var(--text-light);">Tailles: ${p.sizes.join(", ")}</div>
+      </td>
+      <td><span class="status-badge badge-info" style="background:#F3E5F5;color:var(--secondary);">${getCategoryLabel(p.category)}</span></td>
+      <td><strong>${p.price.toFixed(2).replace(".",",")} €</strong></td>
+      <td style="color:var(--text-light);text-decoration:line-through;font-size:0.85rem;">${p.oldPrice ? p.oldPrice.toFixed(2).replace(".",",")+' €' : '—'}</td>
+      <td>${getBadgeBadge(p.badge)}</td>
+      <td><span class="status-badge ${p.stock <= 5 ? 'badge-error' : p.stock <= 10 ? 'badge-warning' : 'badge-success'}">${p.stock}</span></td>
+      <td>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-sm btn-outline" onclick="editProduct(${p.id})" title="Modifier"><i class="fas fa-edit"></i></button>
+          <button class="btn btn-sm btn-danger" onclick="deleteProduct(${p.id})" title="Supprimer"><i class="fas fa-trash"></i></button>
+          <a href="../produit.html?id=${p.id}" target="_blank" class="btn btn-sm" style="background:#E8F5E9;color:#2E7D32;" title="Voir"><i class="fas fa-eye"></i></a>
+        </div>
+      </td>
+    </tr>
+  `).join("");
+  if (list.length === 0) {
+    body.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-light);">Aucun produit trouvé</td></tr>`;
+  }
+}
+
+function openAddProduct() {
+  document.getElementById("modal-title").textContent = "Ajouter un produit";
+  document.getElementById("edit-id").value = "";
+  document.getElementById("product-form").reset();
+  document.querySelectorAll(".size-cb").forEach(cb => cb.checked = false);
+  document.getElementById("photo-preview").innerHTML = "";
+  document.getElementById("product-modal").style.display = "flex";
+}
+
+function editProduct(id) {
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById("modal-title").textContent = "Modifier le produit";
+  document.getElementById("edit-id").value = p.id;
+  document.getElementById("p-name").value = p.name;
+  document.getElementById("p-category").value = p.category;
+  document.getElementById("p-price").value = p.price;
+  document.getElementById("p-oldprice").value = p.oldPrice || "";
+  document.getElementById("p-stock").value = p.stock;
+  document.getElementById("p-badge").value = p.badge || "";
+  document.getElementById("p-desc").value = p.description;
+  document.querySelectorAll(".size-cb").forEach(cb => { cb.checked = p.sizes.includes(cb.value); });
+  document.getElementById("photo-preview").innerHTML = "";
+  document.getElementById("product-modal").style.display = "flex";
+}
+
+function saveProduct(e) {
+  e.preventDefault();
+  const sizes = [...document.querySelectorAll(".size-cb:checked")].map(cb => cb.value);
+  if (sizes.length === 0) { alert("Veuillez sélectionner au moins une taille."); return; }
+  const editId = parseInt(document.getElementById("edit-id").value);
+  const data = {
+    name: document.getElementById("p-name").value,
+    category: document.getElementById("p-category").value,
+    price: parseFloat(document.getElementById("p-price").value),
+    oldPrice: parseFloat(document.getElementById("p-oldprice").value) || null,
+    stock: parseInt(document.getElementById("p-stock").value) || 0,
+    badge: document.getElementById("p-badge").value || null,
+    description: document.getElementById("p-desc").value,
+    sizes,
+    images: []
+  };
+  if (editId) {
+    const idx = products.findIndex(p => p.id === editId);
+    if (idx >= 0) { products[idx] = { ...products[idx], ...data }; }
+  } else {
+    data.id = Date.now();
+    products.push(data);
+  }
+  closeModal();
+  renderProductsTable();
+  alert(editId ? "Produit modifié avec succès !" : "Produit ajouté avec succès !");
+}
+
+function deleteProduct(id) {
+  const p = products.find(x => x.id === id);
+  if (confirm(`Supprimer "${p?.name}" ? Cette action est irréversible.`)) {
+    products = products.filter(x => x.id !== id);
+    renderProductsTable();
+  }
+}
+
+function closeModal() {
+  document.getElementById("product-modal").style.display = "none";
+}
+
+function previewPhotos(e) {
+  const preview = document.getElementById("photo-preview");
+  [...e.target.files].forEach(file => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = document.createElement("img");
+      img.src = ev.target.result;
+      img.style.cssText = "width:80px;height:80px;object-fit:cover;border-radius:var(--radius-sm);border:2px solid var(--border);";
+      preview.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+renderProductsTable();
+</script>
+</body>
+</html>
