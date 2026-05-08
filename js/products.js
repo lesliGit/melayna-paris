@@ -20,7 +20,7 @@ const PRODUCTS = [
     id: 2,
     name: "SAJDA",
     category: "robes",
-    price: 19.50,
+    price: 45.99,
     oldPrice: null,
     badge: null,
     sizes: ["unique"],
