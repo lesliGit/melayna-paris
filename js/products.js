@@ -7,13 +7,13 @@ const PRODUCTS = [
     id: 1,
     name: "SABAH",
     category: "robes",
-    price: 33.99,
+    price: 159.63,
     oldPrice: null,
     badge: null,
     sizes: ["unique"],
     description: "Robe SABAH - Design Élégant et Polyvalente pour Occasions Spéciales - Confortable et Stylée pour une Silhouette Gracieuse",
     images: ["images/sabah-1.jpg", "images/sabah-2.jpg"],
-    stock: 25,
+    stock: 199999,
     new: false
   },
   {
