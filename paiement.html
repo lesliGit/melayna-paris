@@ -169,7 +169,7 @@ function renderOrderSummary() {
     return;
   }
   const subtotal = Cart.getTotal();
-  const shipping = 6.95;
+  const shipping = 0;
   const total = subtotal + shipping;
 
   summary.innerHTML = `
@@ -225,7 +225,7 @@ paypal.Buttons({
   // Création de la commande — version simplifiée
   createOrder: function(data, actions) {
     if (!validateForm()) return actions.reject();
-    const total = Math.round((Cart.getTotal() + 6.95) * 100) / 100;
+    const total = Math.round(Cart.getTotal() * 100) / 100;
     return actions.order.create({
       intent: "CAPTURE",
       purchase_units: [{
