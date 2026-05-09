@@ -138,17 +138,25 @@ if (!product) {
     document.getElementById("product-detail").innerHTML = `
       <!-- Galerie -->
       <div class="product-gallery">
-        <div class="gallery-main">
-          <div class="product-img-placeholder" style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text-light);gap:10px;">
-            <i class="fas fa-tshirt" style="font-size:5rem;opacity:0.25;"></i>
-            <span style="font-size:0.9rem;">Votre photo produit ici</span>
-          </div>
+        <div class="gallery-main" id="gallery-main-img">
+          ${product.images && product.images.length > 0
+            ? `<img src="${product.images[0]}" alt="${product.name}" style="width:100%;height:100%;object-fit:cover;border-radius:var(--radius);">`
+            : `<div class="product-img-placeholder" style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text-light);gap:10px;">
+                <i class="fas fa-tshirt" style="font-size:5rem;opacity:0.25;"></i>
+                <span style="font-size:0.9rem;">Photo à venir</span>
+               </div>`
+          }
         </div>
         <div class="gallery-thumbs">
-          ${[1,2,3,4].map(i => `
-            <div class="gallery-thumb ${i===1?'active':''}" style="display:flex;align-items:center;justify-content:center;">
-              <i class="fas fa-tshirt" style="font-size:1.4rem;color:var(--text-light);opacity:0.4;"></i>
-            </div>`).join("")}
+          ${product.images && product.images.length > 0
+            ? product.images.map((img, i) => `
+                <div class="gallery-thumb ${i===0?'active':''}" data-img="${img}" style="overflow:hidden;">
+                  <img src="${img}" alt="${product.name} ${i+1}" style="width:100%;height:100%;object-fit:cover;">
+                </div>`).join("")
+            : `<div class="gallery-thumb active" style="display:flex;align-items:center;justify-content:center;">
+                <i class="fas fa-tshirt" style="font-size:1.4rem;color:var(--text-light);opacity:0.4;"></i>
+               </div>`
+          }
         </div>
       </div>
 
