@@ -131,12 +131,9 @@
           Paiement 100% sécurisé via PayPal. Vous pouvez payer avec votre compte PayPal ou par carte bancaire.
         </div>
 
-        <!-- Bouton PayPal officiel (à configurer avec vos identifiants) -->
-        <div id="paypal-button-container" style="min-height:50px;">
-          <button class="paypal-btn" onclick="simulatePaypal()">
-            <i class="fab fa-paypal"></i> Payer avec PayPal
-          </button>
-        </div>
+        <!-- Bouton PayPal officiel -->
+        <div id="paypal-button-container" style="min-height:50px;"></div>
+        <div id="paypal-error" style="display:none;color:var(--error);font-size:0.85rem;margin-top:10px;text-align:center;"></div>
 
         <div style="margin-top:16px;display:flex;justify-content:center;gap:12px;align-items:center;opacity:0.5;">
           <i class="fab fa-cc-visa fa-2x"></i>
@@ -159,6 +156,8 @@
   &nbsp;|&nbsp; <a href="#" style="color:rgba(255,255,255,0.5);">CGV</a>
 </footer>
 
+<!-- SDK PayPal Sandbox -->
+<script src="https://www.paypal.com/sdk/js?client-id=AW3Z_fAjuNatHDxVAJEpSU79Cm6-m9Cn0nLqiDMGkSqltUN_TVr2qtJ8raxS-FSQnW8A21DVRzYYmB3q&currency=EUR"></script>
 <script src="js/products.js"></script>
 <script src="js/cart.js"></script>
 <script>
@@ -194,8 +193,8 @@ function renderOrderSummary() {
   `;
 }
 
-function simulatePaypal() {
-  // Validation formulaire
+// Validation formulaire
+function validateForm() {
   const form = document.getElementById("shipping-form");
   const inputs = form.querySelectorAll("input[required]");
   let valid = true;
@@ -207,24 +206,62 @@ function simulatePaypal() {
       input.style.borderColor = "var(--border)";
     }
   });
-
   if (!valid) {
     showToast('<i class="fas fa-exclamation-circle" style="color:var(--error)"></i> <span>Veuillez remplir tous les champs obligatoires</span>');
-    return;
+  }
+  return valid;
+}
+
+// Initialisation bouton PayPal
+paypal.Buttons({
+
+  // Création de la commande
+  createOrder: function(data, actions) {
+    if (!validateForm()) return actions.reject();
+    const total = (Cart.getTotal() + 6.95).toFixed(2);
+    return actions.order.create({
+      purchase_units: [{
+        description: "Commande Melayna Paris",
+        amount: {
+          currency_code: "EUR",
+          value: total,
+          breakdown: {
+            item_total: { currency_code: "EUR", value: Cart.getTotal().toFixed(2) },
+            shipping:   { currency_code: "EUR", value: "6.95" }
+          }
+        },
+        items: Cart.items.map(item => ({
+          name: `${item.name} (${item.size})`,
+          quantity: item.qty.toString(),
+          unit_amount: { currency_code: "EUR", value: item.price.toFixed(2) }
+        }))
+      }]
+    });
+  },
+
+  // Paiement approuvé
+  onApprove: function(data, actions) {
+    return actions.order.capture().then(function(details) {
+      Cart.clear();
+      localStorage.setItem("paypal_order_id", details.id);
+      window.location.href = "confirmation.html";
+    });
+  },
+
+  // Paiement annulé
+  onCancel: function() {
+    document.getElementById("paypal-error").style.display = "block";
+    document.getElementById("paypal-error").textContent = "Paiement annulé. Vous pouvez réessayer.";
+  },
+
+  // Erreur
+  onError: function(err) {
+    document.getElementById("paypal-error").style.display = "block";
+    document.getElementById("paypal-error").textContent = "Une erreur est survenue. Veuillez réessayer.";
+    console.error("Erreur PayPal :", err);
   }
 
-  // Simuler redirection PayPal
-  const btn = document.querySelector(".paypal-btn");
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connexion à PayPal…';
-  btn.disabled = true;
-
-  // IMPORTANT: Remplacer ceci par la vraie intégration PayPal SDK
-  // Voir : https://developer.paypal.com/sdk/js/
-  setTimeout(() => {
-    Cart.clear();
-    window.location.href = "confirmation.html";
-  }, 2000);
-}
+}).render("#paypal-button-container");
 
 function showToast(html) {
   let container = document.querySelector(".toast-container");
