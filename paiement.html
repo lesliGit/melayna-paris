@@ -241,17 +241,36 @@ paypal.Buttons({
   // Paiement approuvé
   onApprove: function(data, actions) {
     return actions.order.capture().then(function(details) {
-      Cart.clear();
-      localStorage.setItem("paypal_order_id", details.id);
-      localStorage.setItem("paypal_payer", details.payer.name.given_name);
-      window.location.href = "confirmation.html";
-    }).catch(function(err) {
-      console.error("Erreur capture PayPal :", err);
-      // Paiement approuvé mais capture échouée (problème de cookies Sandbox)
-      // En production Live, ce cas ne se produit pas
-      const errDiv = document.getElementById("paypal-error");
-      errDiv.style.display = "block";
-      errDiv.innerHTML = '<i class="fas fa-info-circle"></i> Paiement approuvé mais non finalisé (limitation Sandbox). En production, le paiement fonctionnera normalement.';
+      // Récupérer les données du formulaire
+      const form = document.getElementById("shipping-form");
+      const inputs = form.querySelectorAll("input");
+      const orderData = {
+        paypal_order_id: details.id,
+        prenom:       inputs[0].value,
+        nom:          inputs[1].value,
+        adresse:      inputs[2].value,
+        code_postal:  inputs[3].value,
+        ville:        inputs[4].value,
+        email:        inputs[5].value,
+        tel:          inputs[6].value,
+        instructions: form.querySelector("textarea").value,
+        produits:     Cart.items,
+        sous_total:   Cart.getTotal(),
+        frais_livraison: 0,
+        total:        Cart.getTotal()
+      };
+
+      // Envoyer au backend PHP
+      fetch("https://melayna-paris.infinityfreeapp.com/save-order.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderData)
+      }).finally(function() {
+        Cart.clear();
+        localStorage.setItem("paypal_order_id", details.id);
+        localStorage.setItem("paypal_payer", details.payer.name.given_name);
+        window.location.href = "confirmation.html";
+      });
     });
   },
 
