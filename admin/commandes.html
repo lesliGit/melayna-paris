@@ -20,7 +20,7 @@
   <div class="sidebar-section">
     <div class="sidebar-section-title">Principal</div>
     <a href="index.html" class="sidebar-link"><i class="fas fa-chart-line"></i> Dashboard</a>
-    <a href="commandes.html" class="sidebar-link active"><i class="fas fa-shopping-bag"></i> Commandes<span class="sidebar-notif">3</span></a>
+    <a href="commandes.html" class="sidebar-link active"><i class="fas fa-shopping-bag"></i> Commandes <span class="sidebar-notif" id="notif-count" style="display:none;">0</span></a>
     <a href="produits.html" class="sidebar-link"><i class="fas fa-tshirt"></i> Produits</a>
     <a href="chiffre-affaire.html" class="sidebar-link"><i class="fas fa-euro-sign"></i> Chiffre d'Affaires</a>
   </div>
@@ -37,9 +37,12 @@
   <div class="admin-topbar">
     <div class="topbar-title">
       <h1>Gestion des Commandes</h1>
-      <p>Suivez et gérez toutes vos commandes</p>
+      <p>Commandes réelles enregistrées en base de données</p>
     </div>
     <div class="topbar-actions">
+      <button class="topbar-btn topbar-btn-outline" onclick="loadOrders()">
+        <i class="fas fa-sync-alt"></i> Actualiser
+      </button>
       <button class="topbar-btn topbar-btn-outline" onclick="exportCSV()">
         <i class="fas fa-download"></i> Exporter CSV
       </button>
@@ -48,27 +51,31 @@
 
   <div class="admin-content">
 
-    <!-- Filtres statut -->
+    <!-- Filtres -->
     <div style="display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap;align-items:center;">
       <div class="admin-search">
         <i class="fas fa-search"></i>
-        <input type="text" placeholder="Rechercher commande, client…" id="order-search" oninput="filterOrders()">
+        <input type="text" placeholder="Rechercher client, email, commande…" id="order-search" oninput="filterOrders()">
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-left:auto;">
-        <button class="btn btn-sm" id="filter-all" onclick="setFilter('all')" style="background:var(--gradient);color:#fff;">Tout</button>
-        <button class="btn btn-sm btn-outline" id="filter-attente" onclick="setFilter('En attente')">En attente (3)</button>
-        <button class="btn btn-sm btn-outline" id="filter-expedie" onclick="setFilter('Expédié')">Expédié (2)</button>
-        <button class="btn btn-sm btn-outline" id="filter-livre" onclick="setFilter('Livré')">Livré (2)</button>
+        <button class="btn btn-sm" id="filter-all" onclick="setFilter('all')" style="background:var(--gradient);color:#fff;border:none;">Tout</button>
+        <button class="btn btn-sm btn-outline" id="filter-paye" onclick="setFilter('Payé')">Payé</button>
+        <button class="btn btn-sm btn-outline" id="filter-expedie" onclick="setFilter('Expédié')">Expédié</button>
+        <button class="btn btn-sm btn-outline" id="filter-livre" onclick="setFilter('Livré')">Livré</button>
       </div>
     </div>
 
-    <!-- Tableau commandes -->
+    <!-- Tableau -->
     <div class="admin-card">
       <div class="admin-card-header">
         <h3>Liste des commandes <span style="color:var(--text-light);font-weight:400;font-size:0.85rem;" id="order-count"></span></h3>
       </div>
       <div class="admin-card-body">
-        <table class="admin-table">
+        <div id="loading" style="text-align:center;padding:40px;color:var(--text-light);">
+          <i class="fas fa-spinner fa-spin" style="font-size:2rem;"></i>
+          <p>Chargement des commandes…</p>
+        </div>
+        <table class="admin-table" id="orders-table" style="display:none;">
           <thead>
             <tr>
               <th>N° Commande</th>
@@ -77,7 +84,7 @@
               <th>Articles</th>
               <th>Montant</th>
               <th>Paiement</th>
-              <th>Livraison</th>
+              <th>Suivi</th>
               <th>Statut</th>
               <th>Actions</th>
             </tr>
@@ -90,40 +97,69 @@
 </main>
 
 <!-- Modale détail commande -->
-<div id="order-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:999;display:none;align-items:center;justify-content:center;">
-  <div style="background:#fff;border-radius:var(--radius);padding:36px;max-width:600px;width:90%;max-height:90vh;overflow-y:auto;position:relative;">
+<div id="order-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:999;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:var(--radius);padding:36px;max-width:620px;width:90%;max-height:90vh;overflow-y:auto;position:relative;">
     <button onclick="closeModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:1.4rem;color:var(--text-light);cursor:pointer;">&times;</button>
     <div id="modal-content"></div>
   </div>
 </div>
 
-<script src="../js/products.js"></script>
 <script>
-const ORDERS = [
-  { id:"#MP-2025-8847", client:"Sophie Martin", email:"s.martin@email.fr", date:"08/05/2025", articles:["Robe Midi Fleurie (M)", "Sac Fuchsia (unique)"], montant:129.85, paiement:"PayPal", statut:"En attente", livraison:"En préparation", tracking:"" },
-  { id:"#MP-2025-8846", client:"Léa Dubois", email:"lea.d@email.fr", date:"07/05/2025", articles:["Jupe Vichy Rose (S)"], montant:89.90, paiement:"PayPal", statut:"Expédié", livraison:"En transit", tracking:"6V12345678FR" },
-  { id:"#MP-2025-8845", client:"Emma Bernard", email:"e.bernard@email.fr", date:"07/05/2025", articles:["Manteau Camel (M)"], montant:249.90, paiement:"PayPal", statut:"Livré", livraison:"Livré", tracking:"6V09876543FR" },
-  { id:"#MP-2025-8844", client:"Clara Petit", email:"c.petit@email.fr", date:"06/05/2025", articles:["Jupe Longue Bohème (L)"], montant:59.90, paiement:"PayPal", statut:"En attente", livraison:"En préparation", tracking:"" },
-  { id:"#MP-2025-8843", client:"Alice Moreau", email:"a.moreau@email.fr", date:"05/05/2025", articles:["Robe Soirée Velours (S)", "Pantalon Noir (XS)"], montant:189.90, paiement:"PayPal", statut:"Expédié", livraison:"En transit", tracking:"6V11112222FR" },
-  { id:"#MP-2025-8842", client:"Chloé Rousseau", email:"c.rousseau@email.fr", date:"04/05/2025", articles:["Pantalon Noir (M)"], montant:79.90, paiement:"PayPal", statut:"Livré", livraison:"Livré", tracking:"6V99998888FR" },
-  { id:"#MP-2025-8841", client:"Marie Blanc", email:"m.blanc@email.fr", date:"03/05/2025", articles:["Veste Blazer Crème (L)"], montant:149.90, paiement:"PayPal", statut:"En attente", livraison:"En préparation", tracking:"" },
-];
-
+const API = "https://melayna-paris.infinityfreeapp.com";
+let ORDERS = [];
 let activeFilter = "all";
 let searchTerm = "";
 
+// Charger les commandes depuis la base de données
+async function loadOrders() {
+  document.getElementById("loading").style.display = "block";
+  document.getElementById("orders-table").style.display = "none";
+  try {
+    const res = await fetch(API + "/get-orders.php");
+    const data = await res.json();
+    ORDERS = data.map(o => ({
+      id: o.id,
+      paypal_id: o.paypal_order_id,
+      client: o.client_prenom + " " + o.client_nom,
+      prenom: o.client_prenom,
+      email: o.client_email,
+      tel: o.client_tel,
+      adresse: o.adresse + ", " + o.code_postal + " " + o.ville,
+      instructions: o.instructions,
+      produits: typeof o.produits === 'string' ? JSON.parse(o.produits) : (o.produits || []),
+      montant: parseFloat(o.total),
+      statut: o.statut || "Payé",
+      tracking: o.tracking || "",
+      date: new Date(o.date_commande).toLocaleDateString('fr-FR')
+    }));
+
+    // Badge commandes en attente
+    const enAttente = ORDERS.filter(o => o.statut === "Payé").length;
+    const notif = document.getElementById("notif-count");
+    if (enAttente > 0) { notif.style.display = "inline"; notif.textContent = enAttente; }
+    else { notif.style.display = "none"; }
+
+    document.getElementById("loading").style.display = "none";
+    document.getElementById("orders-table").style.display = "table";
+    renderOrders();
+  } catch(e) {
+    document.getElementById("loading").innerHTML = `<p style="color:var(--error);">❌ Impossible de charger les commandes. Vérifiez la connexion au backend.</p>`;
+  }
+}
+
 function getStatusBadge(statut) {
-  const map = { "En attente":"badge-warning", "Expédié":"badge-info", "Livré":"badge-success", "Annulé":"badge-error" };
+  const map = { "Payé":"badge-warning", "Expédié":"badge-info", "Livré":"badge-success", "Annulé":"badge-error" };
   return `<span class="status-badge ${map[statut]||"badge-info"}">${statut}</span>`;
 }
 
 function setFilter(f) {
   activeFilter = f;
   document.querySelectorAll("[id^='filter-']").forEach(btn => {
-    btn.style.background = ""; btn.style.color = ""; btn.classList.add("btn-outline"); btn.classList.remove("btn-primary");
+    btn.style.background = ""; btn.style.color = ""; btn.style.border = "";
+    btn.classList.add("btn-outline");
   });
-  const btnId = f === "all" ? "filter-all" : `filter-${f.toLowerCase().replace(" ","").replace("é","e")}`;
-  const activeBtn = document.getElementById(btnId);
+  const btnMap = { all:"filter-all", "Payé":"filter-paye", "Expédié":"filter-expedie", "Livré":"filter-livre" };
+  const activeBtn = document.getElementById(btnMap[f]);
   if (activeBtn) { activeBtn.style.background = "var(--gradient)"; activeBtn.style.color = "#fff"; activeBtn.style.border = "none"; }
   renderOrders();
 }
@@ -137,17 +173,19 @@ function renderOrders() {
   let list = ORDERS;
   if (activeFilter !== "all") list = list.filter(o => o.statut === activeFilter);
   if (searchTerm) list = list.filter(o =>
-    o.id.toLowerCase().includes(searchTerm) ||
+    String(o.id).includes(searchTerm) ||
     o.client.toLowerCase().includes(searchTerm) ||
-    o.email.toLowerCase().includes(searchTerm)
+    o.email.toLowerCase().includes(searchTerm) ||
+    o.paypal_id.toLowerCase().includes(searchTerm)
   );
   document.getElementById("order-count").textContent = `(${list.length})`;
   const body = document.getElementById("orders-body");
   body.innerHTML = list.map(o => {
-    const initials = o.client.split(" ").map(n => n[0]).join("");
+    const initials = o.client.split(" ").map(n => n[0]).join("").toUpperCase();
+    const nbArticles = o.produits ? o.produits.length : 0;
     return `
       <tr>
-        <td><span style="font-weight:700;color:var(--primary);font-size:0.85rem;">${o.id}</span></td>
+        <td><span style="font-weight:700;color:var(--primary);font-size:0.85rem;">#MP-${String(o.id).padStart(4,'0')}</span></td>
         <td>
           <div style="display:flex;align-items:center;gap:8px;">
             <div class="order-avatar">${initials}</div>
@@ -158,9 +196,9 @@ function renderOrders() {
           </div>
         </td>
         <td style="font-size:0.85rem;color:var(--text-medium);">${o.date}</td>
-        <td style="font-size:0.82rem;color:var(--text-medium);">${o.articles.length} article${o.articles.length>1?"s":""}</td>
+        <td style="font-size:0.82rem;color:var(--text-medium);">${nbArticles} article${nbArticles>1?"s":""}</td>
         <td><strong>${o.montant.toFixed(2).replace(".",",")} €</strong></td>
-        <td><span class="status-badge badge-success"><i class="fab fa-paypal"></i> ${o.paiement}</span></td>
+        <td><span class="status-badge badge-success"><i class="fab fa-paypal"></i> PayPal</span></td>
         <td>
           ${o.tracking ? `<a href="https://www.laposte.fr/outils/suivre-vos-envois?code=${o.tracking}" target="_blank" style="font-size:0.8rem;color:var(--info);">${o.tracking}</a>` :
             `<span style="font-size:0.8rem;color:var(--text-light);">—</span>`}
@@ -168,10 +206,10 @@ function renderOrders() {
         <td>${getStatusBadge(o.statut)}</td>
         <td>
           <div style="display:flex;gap:6px;">
-            <button class="btn btn-sm btn-outline" onclick="viewOrder('${o.id}')" title="Voir"><i class="fas fa-eye"></i></button>
-            ${o.statut==="En attente" ? `<button class="btn btn-sm" onclick="updateStatus('${o.id}','Expédié')" style="background:#E3F2FD;color:#1565C0;font-size:0.75rem;" title="Marquer expédié"><i class="fas fa-truck"></i></button>` : ""}
-            ${o.statut==="Expédié" ? `<button class="btn btn-sm" onclick="updateStatus('${o.id}','Livré')" style="background:#E8F5E9;color:#2E7D32;font-size:0.75rem;" title="Marquer livré"><i class="fas fa-check"></i></button>` : ""}
-            <button class="btn btn-sm btn-danger" onclick="editTracking('${o.id}')" title="Suivi"><i class="fas fa-barcode"></i></button>
+            <button class="btn btn-sm btn-outline" onclick="viewOrder(${o.id})" title="Voir"><i class="fas fa-eye"></i></button>
+            ${o.statut==="Payé" ? `<button class="btn btn-sm" onclick="updateStatus(${o.id},'Expédié')" style="background:#E3F2FD;color:#1565C0;font-size:0.75rem;" title="Marquer expédié"><i class="fas fa-truck"></i></button>` : ""}
+            ${o.statut==="Expédié" ? `<button class="btn btn-sm" onclick="updateStatus(${o.id},'Livré')" style="background:#E8F5E9;color:#2E7D32;font-size:0.75rem;" title="Marquer livré"><i class="fas fa-check"></i></button>` : ""}
+            <button class="btn btn-sm btn-danger" onclick="editTracking(${o.id})" title="N° suivi"><i class="fas fa-barcode"></i></button>
           </div>
         </td>
       </tr>`;
@@ -184,48 +222,73 @@ function renderOrders() {
 function viewOrder(id) {
   const o = ORDERS.find(x => x.id === id);
   if (!o) return;
+  const produitsList = o.produits && o.produits.length > 0
+    ? o.produits.map(p => `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:0.88rem;">
+        <span><i class="fas fa-tshirt" style="color:var(--primary);margin-right:8px;"></i>${p.name} <span style="color:var(--text-light);">x${p.qty}</span></span>
+        <strong>${(p.price * p.qty).toFixed(2).replace(".",",")} €</strong>
+      </div>`).join("")
+    : "<p style='color:var(--text-light);font-size:0.85rem;'>Détail non disponible</p>";
+
   document.getElementById("modal-content").innerHTML = `
-    <h3 style="margin-bottom:20px;">Détail commande <span style="color:var(--primary);">${o.id}</span></h3>
+    <h3 style="margin-bottom:20px;">Commande <span style="color:var(--primary);">#MP-${String(o.id).padStart(4,'0')}</span></h3>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
-      <div><div style="font-size:0.8rem;color:var(--text-light);margin-bottom:4px;">Client</div><div style="font-weight:600;">${o.client}</div><div style="font-size:0.8rem;color:var(--text-light);">${o.email}</div></div>
+      <div><div style="font-size:0.8rem;color:var(--text-light);margin-bottom:4px;">Client</div>
+        <div style="font-weight:600;">${o.client}</div>
+        <div style="font-size:0.8rem;color:var(--text-light);">${o.email}</div>
+        <div style="font-size:0.8rem;color:var(--text-light);">${o.tel}</div>
+      </div>
       <div><div style="font-size:0.8rem;color:var(--text-light);margin-bottom:4px;">Date</div><div style="font-weight:600;">${o.date}</div></div>
-      <div><div style="font-size:0.8rem;color:var(--text-light);margin-bottom:4px;">Statut</div><div>${getStatusBadge(o.statut)}</div></div>
-      <div><div style="font-size:0.8rem;color:var(--text-light);margin-bottom:4px;">Paiement</div><div class="status-badge badge-success">${o.paiement} ✓</div></div>
+      <div><div style="font-size:0.8rem;color:var(--text-light);margin-bottom:4px;">Adresse</div><div style="font-size:0.85rem;">${o.adresse}</div></div>
+      <div><div style="font-size:0.8rem;color:var(--text-light);margin-bottom:4px;">Statut</div>${getStatusBadge(o.statut)}</div>
     </div>
+    ${o.instructions ? `<div style="background:#FFF9C4;border-radius:var(--radius-sm);padding:10px;margin-bottom:16px;font-size:0.83rem;"><i class="fas fa-info-circle"></i> ${o.instructions}</div>` : ""}
     <div style="background:var(--bg);border-radius:var(--radius-sm);padding:16px;margin-bottom:20px;">
       <div style="font-size:0.85rem;font-weight:600;margin-bottom:12px;">Articles commandés</div>
-      ${o.articles.map(a => `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:0.88rem;"><i class="fas fa-tshirt" style="color:var(--primary);"></i>${a}</div>`).join("")}
+      ${produitsList}
     </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:14px;background:#fff;border:1px solid var(--border);border-radius:var(--radius-sm);">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:14px;background:#fff;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:16px;">
       <span style="font-weight:700;">Total TTC</span>
       <span style="font-size:1.2rem;font-weight:800;color:var(--primary);">${o.montant.toFixed(2).replace(".",",")} €</span>
     </div>
-    ${o.tracking ? `<div style="margin-top:16px;font-size:0.85rem;"><strong>N° de suivi :</strong> <a href="https://www.laposte.fr/outils/suivre-vos-envois?code=${o.tracking}" target="_blank" style="color:var(--primary);">${o.tracking}</a></div>` : ""}
-    <div style="margin-top:20px;display:flex;gap:10px;">
-      ${o.statut==="En attente" ? `<button class="btn btn-primary" onclick="updateStatus('${o.id}','Expédié');closeModal();"><i class="fas fa-truck"></i> Marquer comme expédié</button>` : ""}
+    <div style="font-size:0.78rem;color:var(--text-light);margin-bottom:16px;">PayPal ID : ${o.paypal_id}</div>
+    ${o.tracking ? `<div style="margin-bottom:16px;font-size:0.85rem;"><strong>N° de suivi :</strong> <a href="https://www.laposte.fr/outils/suivre-vos-envois?code=${o.tracking}" target="_blank" style="color:var(--primary);">${o.tracking}</a></div>` : ""}
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      ${o.statut==="Payé" ? `<button class="btn btn-primary" onclick="updateStatus(${o.id},'Expédié');closeModal();"><i class="fas fa-truck"></i> Marquer expédié</button>` : ""}
+      ${o.statut==="Expédié" ? `<button class="btn btn-primary" onclick="updateStatus(${o.id},'Livré');closeModal();"><i class="fas fa-check"></i> Marquer livré</button>` : ""}
+      <button class="btn btn-outline" onclick="editTracking(${o.id})"><i class="fas fa-barcode"></i> N° suivi</button>
       <button class="btn btn-outline" onclick="closeModal()">Fermer</button>
     </div>
   `;
   document.getElementById("order-modal").style.display = "flex";
 }
 
-function updateStatus(id, newStatus) {
-  const o = ORDERS.find(x => x.id === id);
-  if (o) {
-    o.statut = newStatus;
-    if (newStatus === "Expédié" && !o.tracking) {
-      const tracking = prompt(`N° de suivi Colissimo pour ${id} :`, "6V");
-      if (tracking) o.tracking = tracking.trim();
-    }
-    renderOrders();
+async function updateStatus(id, newStatus) {
+  if (newStatus === "Expédié") {
+    const tracking = prompt("N° de suivi Colissimo :", "6V");
+    if (tracking !== null) await editTrackingDirect(id, tracking.trim());
   }
+  await fetch(API + "/update-order.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id, statut: newStatus })
+  });
+  await loadOrders();
 }
 
-function editTracking(id) {
+async function editTracking(id) {
   const o = ORDERS.find(x => x.id === id);
   if (!o) return;
-  const tracking = prompt(`N° de suivi Colissimo pour ${id} :`, o.tracking || "6V");
-  if (tracking !== null) { o.tracking = tracking.trim(); renderOrders(); }
+  const tracking = prompt("N° de suivi Colissimo :", o.tracking || "6V");
+  if (tracking !== null) await editTrackingDirect(id, tracking.trim());
+}
+
+async function editTrackingDirect(id, tracking) {
+  await fetch(API + "/update-order.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id, tracking })
+  });
+  await loadOrders();
 }
 
 function closeModal() {
@@ -233,21 +296,24 @@ function closeModal() {
 }
 
 function exportCSV() {
-  const rows = [["N° Commande","Client","Email","Date","Montant","Statut","Tracking"]];
-  ORDERS.forEach(o => rows.push([o.id, o.client, o.email, o.date, o.montant, o.statut, o.tracking]));
-  const csv = rows.map(r => r.join(";")).join("\n");
+  const rows = [["N° Commande","Client","Email","Téléphone","Date","Adresse","Montant","Statut","PayPal ID","Suivi"]];
+  ORDERS.forEach(o => rows.push([
+    `#MP-${String(o.id).padStart(4,'0')}`,
+    o.client, o.email, o.tel, o.date, o.adresse,
+    o.montant.toFixed(2), o.statut, o.paypal_id, o.tracking
+  ]));
+  const csv = rows.map(r => r.map(v => `"${v}"`).join(";")).join("\n");
   const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url; a.download = "commandes_melayna.csv"; a.click();
 }
 
-// Clic en dehors de la modale
 document.getElementById("order-modal").addEventListener("click", (e) => {
   if (e.target === document.getElementById("order-modal")) closeModal();
 });
 
-renderOrders();
+loadOrders();
 </script>
 </body>
 </html>
