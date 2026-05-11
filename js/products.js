@@ -7,7 +7,7 @@ const PRODUCTS = [
     id: 1,
     name: "SABAH",
     category: "robes",
-    price: 1.00,
+    price: 0.01,
     oldPrice: null,
     badge: null,
     sizes: ["unique"],
