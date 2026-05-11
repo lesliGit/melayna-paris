@@ -1,0 +1,3 @@
+# Fichiers backend — NE JAMAIS pousser sur GitHub
+# Ces fichiers contiennent des mots de passe et données sensibles
+backend/
