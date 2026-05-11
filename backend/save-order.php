@@ -76,7 +76,7 @@ try {
         . "Total : " . number_format($data['total'], 2, ',', ' ') . " €\n"
         . "PayPal ID : " . $data['paypal_order_id'];
 
-    mail('lesli.delabursi@dragonbleu.fr', '🛍️ Nouvelle commande Melayna Paris', $notifMessage,
+    mail('Taylena.shop@gmail.com', '🛍️ Nouvelle commande Melayna Paris', $notifMessage,
         "From: commandes@melayna-paris.infinityfreeapp.com\r\nContent-Type: text/plain; charset=UTF-8");
 
     echo json_encode(['success' => true]);
