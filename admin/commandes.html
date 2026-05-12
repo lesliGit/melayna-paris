@@ -115,7 +115,11 @@ async function loadOrders() {
   document.getElementById("loading").style.display = "block";
   document.getElementById("orders-table").style.display = "none";
   try {
-    const res = await fetch(API + "/get-orders.php");
+    const res = await fetch(API + "/get-orders.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "get" })
+    });
     const data = await res.json();
     ORDERS = data.map(o => ({
       id: o.id,
