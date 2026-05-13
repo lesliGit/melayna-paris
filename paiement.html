@@ -265,10 +265,22 @@ paypal.Buttons({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderData)
-      }).finally(function() {
+      }).then(r => r.json()).then(function(result) {
         Cart.clear();
-        localStorage.setItem("paypal_order_id", details.id);
-        localStorage.setItem("paypal_payer", details.payer.name.given_name);
+        localStorage.setItem("last_order", JSON.stringify({
+          ...orderData,
+          db_id: result.id || null,
+          paypal_id: details.id,
+          date: new Date().toLocaleDateString("fr-FR")
+        }));
+        window.location.href = "confirmation.html";
+      }).catch(function() {
+        Cart.clear();
+        localStorage.setItem("last_order", JSON.stringify({
+          ...orderData,
+          paypal_id: details.id,
+          date: new Date().toLocaleDateString("fr-FR")
+        }));
         window.location.href = "confirmation.html";
       });
     });
