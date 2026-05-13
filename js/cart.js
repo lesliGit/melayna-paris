@@ -24,7 +24,7 @@ const Cart = {
     if (existing) {
       existing.qty += qty;
     } else {
-      this.items.push({ key, productId, size, qty, name: product.name, price: product.price });
+      this.items.push({ key, productId, size, qty, name: product.name, price: product.price, images: product.images || [] });
     }
     this.save();
     showToast(`<i class="fas fa-check"></i> <span>${product.name} ajouté au panier !</span>`);
