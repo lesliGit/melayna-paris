@@ -238,7 +238,7 @@
 <body>
 
 <header class="site-header">
-  <div class="header-top">✨ Retours acceptés sous 14 jours – Frais de retour : 4,95 € (Colissimo suivi) ✨</div>
+  <div class="header-top">✨ Retours acceptés sous 14 jours – Frais de port offerts dès 60 € d'achat ✨</div>
   <div class="header-main">
     <a href="index.html" class="logo"><span class="logo-name">Melayna</span><span class="logo-sub">Paris</span></a>
     <div class="header-actions">
@@ -278,8 +278,8 @@
     </div>
     <div class="info-strip-item">
       <i class="fas fa-shipping-fast"></i>
-      <strong>4,95 € Colissimo</strong>
-      <span>frais de retour à régler</span>
+      <strong>Colissimo suivi</strong>
+      <span>frais de retour à votre charge</span>
     </div>
   </div>
 
@@ -297,11 +297,6 @@
     <div class="step-line" id="line-2"></div>
     <div class="step-dot" id="dot-3">
       <div class="step-dot-circle">3</div>
-      <div class="step-dot-label">Paiement retour</div>
-    </div>
-    <div class="step-line" id="line-3"></div>
-    <div class="step-dot" id="dot-4">
-      <div class="step-dot-circle">4</div>
       <div class="step-dot-label">Confirmation</div>
     </div>
   </div>
@@ -382,48 +377,22 @@
       <textarea class="form-control" id="commentaire" rows="2" placeholder="Toute information utile…"></textarea>
     </div>
 
+    <div style="background:#FFF5F9;border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;margin-bottom:20px;font-size:0.82rem;color:var(--text-medium);">
+      <p><i class="fas fa-truck" style="color:var(--primary);margin-right:6px;"></i><strong>Instructions de retour :</strong> Après validation, vous recevrez notre adresse par e-mail. Expédiez votre article en Colissimo suivi à vos frais et conservez votre preuve d'envoi.</p>
+    </div>
+
     <div style="display:flex;gap:12px;">
       <button class="btn btn-outline" onclick="goStep(1)" style="flex:1;">
         <i class="fas fa-arrow-left"></i> Retour
       </button>
-      <button class="btn btn-primary" onclick="goStep(3)" style="flex:2;">
-        Continuer <i class="fas fa-arrow-right"></i>
+      <button class="btn btn-primary" onclick="submitRetour()" style="flex:2;" id="btn-submit">
+        <i class="fas fa-paper-plane"></i> Envoyer ma demande
       </button>
     </div>
   </div>
 
-  <!-- ÉTAPE 3 : Paiement frais de retour -->
-  <div id="step-3" class="retour-card" style="display:none;">
-    <h3><i class="fab fa-paypal"></i> Frais de retour Colissimo</h3>
-
-    <p style="font-size:0.88rem;color:var(--text-medium);margin-bottom:16px;">
-      Les frais de retour sont à votre charge. Réglez-les ci-dessous via PayPal pour valider votre demande. Vous recevrez ensuite les instructions d'envoi par e-mail.
-    </p>
-
-    <div class="retour-fee-box">
-      <div class="retour-fee-info">
-        <strong>Colissimo suivi – Retour Melayna Paris</strong>
-        <span>Envoi garanti avec numéro de suivi · France métropolitaine</span>
-      </div>
-      <div class="retour-fee-price">4,95 €</div>
-    </div>
-
-    <div id="paypal-retour-container"></div>
-
-    <div class="tracking-box" style="margin-top:20px;">
-      <strong><i class="fas fa-info-circle" style="color:var(--primary);margin-right:6px;"></i>Comment ça fonctionne ?</strong>
-      <p style="margin-top:6px;">Après paiement des frais, vous recevrez un e-mail de confirmation. Emballez votre article soigneusement et déposez-le en bureau de Poste avec l'adresse de retour indiquée dans l'e-mail.</p>
-    </div>
-
-    <div style="margin-top:16px;">
-      <button class="btn btn-outline" onclick="goStep(2)" style="width:100%;">
-        <i class="fas fa-arrow-left"></i> Retour
-      </button>
-    </div>
-  </div>
-
-  <!-- ÉTAPE 4 : Succès -->
-  <div id="step-4" class="retour-card success-screen">
+  <!-- ÉTAPE 3 : Confirmation -->
+  <div id="step-3" class="retour-card success-screen">
     <div class="success-icon-big">
       <i class="fas fa-check"></i>
     </div>
@@ -458,15 +427,11 @@
   <div class="footer-bottom"><span>© 2026 Melayna Paris – Malek KASMI</span></div>
 </footer>
 
-<!-- PayPal SDK Live -->
-<script src="https://www.paypal.com/sdk/js?client-id=Aa5eUEp_CRLSE9pXFuXYM8GY5i0a5d9yHyDUBKXcmQyvvpOrlQCzAG4AxwGGtntOabykZMOTW0S21e7C&currency=EUR"></script>
 <script src="js/products.js"></script>
 <script src="js/cart.js"></script>
 <script src="js/main.js"></script>
 <script>
-// Données du formulaire
 const formData = {};
-let paypalRetourId = null;
 
 // Préremplir depuis dernière commande
 window.addEventListener("DOMContentLoaded", () => {
@@ -480,61 +445,28 @@ window.addEventListener("DOMContentLoaded", () => {
   } catch(e) {}
 });
 
-// Navigation entre étapes
 function goStep(n) {
-  // Validation étape courante
   if (n === 2) {
-    const num = document.getElementById("order-num").value.trim();
+    const num    = document.getElementById("order-num").value.trim();
     const prenom = document.getElementById("prenom").value.trim();
-    const email = document.getElementById("email").value.trim();
-    if (!num || !prenom || !email) {
-      alert("Veuillez remplir tous les champs obligatoires.");
-      return;
-    }
-    if (!email.includes("@")) {
-      alert("Veuillez entrer un e-mail valide.");
-      return;
-    }
+    const email  = document.getElementById("email").value.trim();
+    if (!num || !prenom || !email) { alert("Veuillez remplir tous les champs obligatoires."); return; }
+    if (!email.includes("@")) { alert("Veuillez entrer un e-mail valide."); return; }
     formData.order_num = num;
     formData.prenom    = prenom;
     formData.email     = email;
   }
 
-  if (n === 3) {
-    const article = document.getElementById("article").value.trim();
-    const motif   = document.getElementById("motif").value;
-    const etat    = document.getElementById("etat").value;
-    const souhait = document.getElementById("souhait").value;
-    if (!article || !motif || !etat || !souhait) {
-      alert("Veuillez remplir tous les champs obligatoires.");
-      return;
-    }
-    formData.article     = article;
-    formData.motif       = motif === "Autre" ? (document.getElementById("autre-motif").value || "Autre") : motif;
-    formData.etat        = etat;
-    formData.souhait     = souhait;
-    formData.commentaire = document.getElementById("commentaire").value;
-
-    // Init PayPal au step 3
-    initPayPalRetour();
-  }
-
-  // Afficher/masquer les étapes
-  [1, 2, 3, 4].forEach(i => {
+  [1, 2, 3].forEach(i => {
     document.getElementById("step-" + i).style.display = (i === n) ? "block" : "none";
-    if (i === 4) document.getElementById("step-" + i).style.display = (i === n) ? "block" : "none";
   });
 
-  // Mettre à jour les points d'étape
-  [1, 2, 3, 4].forEach(i => {
+  [1, 2, 3].forEach(i => {
     const dot = document.getElementById("dot-" + i);
     dot.classList.remove("active", "done");
     if (i < n) dot.classList.add("done");
     if (i === n) dot.classList.add("active");
-    if (i < 4) {
-      const line = document.getElementById("line-" + i);
-      line.classList.toggle("done", i < n);
-    }
+    if (i < 3) document.getElementById("line-" + i).classList.toggle("done", i < n);
   });
 
   window.scrollTo({ top: 0, behavior: "smooth" });
@@ -545,64 +477,40 @@ function toggleAutreMotif() {
   document.getElementById("autre-motif-group").style.display = val === "Autre" ? "block" : "none";
 }
 
-function initPayPalRetour() {
-  const container = document.getElementById("paypal-retour-container");
-  container.innerHTML = "";
-
-  paypal.Buttons({
-    createOrder: function(data, actions) {
-      return actions.order.create({
-        intent: "CAPTURE",
-        purchase_units: [{
-          description: "Frais de retour Melayna Paris – " + formData.order_num,
-          amount: { currency_code: "EUR", value: "4.95" }
-        }]
-      });
-    },
-    onApprove: function(data, actions) {
-      return actions.order.capture().then(function(details) {
-        paypalRetourId = details.id;
-        submitRetour();
-      });
-    },
-    onError: function() {
-      alert("Une erreur est survenue avec PayPal. Veuillez réessayer.");
-    },
-    style: {
-      color: "gold",
-      shape: "rect",
-      label: "pay",
-      height: 48
-    }
-  }).render("#paypal-retour-container");
-}
-
 function submitRetour() {
-  const payload = {
-    ...formData,
-    paypal_retour_id: paypalRetourId || ""
-  };
+  const article = document.getElementById("article").value.trim();
+  const motif   = document.getElementById("motif").value;
+  const etat    = document.getElementById("etat").value;
+  const souhait = document.getElementById("souhait").value;
+  if (!article || !motif || !etat || !souhait) { alert("Veuillez remplir tous les champs obligatoires."); return; }
+
+  formData.article     = article;
+  formData.motif       = motif === "Autre" ? (document.getElementById("autre-motif").value || "Autre") : motif;
+  formData.etat        = etat;
+  formData.souhait     = souhait;
+  formData.commentaire = document.getElementById("commentaire").value;
+
+  const btn = document.getElementById("btn-submit");
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi en cours…';
 
   fetch("https://melayna-paris.infinityfreeapp.com/save-retour.php", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
+    body: JSON.stringify(formData)
   })
   .then(r => r.json())
   .then(result => {
-    const retourNum = result.retour_id
-      ? "#RET-" + String(result.retour_id).padStart(4, "0")
-      : "";
+    const retourNum = result.retour_id ? "#RET-" + String(result.retour_id).padStart(4, "0") : "";
     document.getElementById("success-msg").textContent =
-      "Votre demande de retour " + retourNum + " pour la commande " + formData.order_num + " a bien été enregistrée. "
-      + "Un e-mail de confirmation a été envoyé à " + formData.email + ".";
-    goStep(4);
+      "Votre demande de retour " + retourNum + " pour la commande " + formData.order_num +
+      " a bien été enregistrée. Un e-mail de confirmation a été envoyé à " + formData.email + ".";
+    goStep(3);
   })
   .catch(() => {
-    // En cas d'erreur réseau, on affiche quand même la confirmation
     document.getElementById("success-msg").textContent =
-      "Votre paiement a été accepté. Votre demande de retour pour la commande " + formData.order_num + " a bien été enregistrée.";
-    goStep(4);
+      "Votre demande de retour pour la commande " + formData.order_num + " a bien été enregistrée. Un e-mail de confirmation a été envoyé à " + formData.email + ".";
+    goStep(3);
   });
 }
 </script>
